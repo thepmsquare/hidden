@@ -4,7 +4,8 @@ import "./stylesheets/index.css";
 import App from "./App";
 import * as serviceWorkerRegistration from "./serviceWorkerRegistration";
 import reportWebVitals from "./reportWebVitals";
-
+import { initializeIcons } from "@fluentui/font-icons-mdl2";
+initializeIcons();
 ReactDOM.render(
   <React.StrictMode>
     <App />
