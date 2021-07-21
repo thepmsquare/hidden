@@ -1,9 +1,9 @@
 .Hidden {
-  height: 50vh;
   width: 50vw;
   border-radius: 0.5rem;
   background-color: rgba(255, 255, 255, 0.75);
   box-shadow: 5px 5px 15px rgba(0, 0, 0, 0.25);
+  overflow: auto;
 }
 @supports (
   (-webkit-backdrop-filter: blur(10px)) or (backdrop-filter: blur(10px))
