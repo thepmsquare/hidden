@@ -4,6 +4,11 @@ import {
   TextField,
   DefaultButton,
   TeachingBubble,
+  Dialog,
+  MessageBar,
+  MessageBarType,
+  Spinner,
+  Text,
 } from "@fluentui/react";
 import { Icon } from "@fluentui/react/lib/Icon";
 import "./stylesheets/Encode.css";
@@ -15,6 +20,11 @@ class Encode extends Component {
       selectedImage: null,
       isTeachingBubbleVisible: false,
       message: "",
+      result: null,
+      messageBarMessage: "",
+      isLoading: false,
+      selectedImageName: null,
+      selectedImageType: null,
     };
   }
 
@@ -28,10 +38,17 @@ class Encode extends Component {
 
   getSelectedImage = (e) => {
     const fReader = new FileReader();
+    const indexOfPath = e.target.files[0].name.lastIndexOf(".");
+    const filename = e.target.files[0].name.substr(0, indexOfPath);
+    const filetype = e.target.files[0].name.substr(indexOfPath + 1);
     fReader.readAsDataURL(e.target.files[0]);
     fReader.onloadend = (event) => {
       this.setState(() => {
-        return { selectedImage: event.target.result };
+        return {
+          selectedImage: event.target.result,
+          selectedImageName: filename,
+          selectedImageType: filetype,
+        };
       });
     };
   };
@@ -54,23 +71,51 @@ class Encode extends Component {
 
   sendAPIRequest = async (e) => {
     e.preventDefault();
+
     if (this.state.selectedImage) {
-      // const url = "https://hiddenapi.herokuapp.com/encode/";
-      const url = "http://127.0.0.1:8000/encode";
+      const url = "https://hiddenapi.herokuapp.com/encode";
+      // const url = "http://127.0.0.1:8000/encode";
       const params = {
         image: this.state.selectedImage,
         message: this.state.message,
       };
-
-      const response = await fetch(url, {
-        method: "post",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(params),
+      this.setState(() => {
+        return {
+          isLoading: true,
+        };
       });
-      const data = await response.json();
-      console.log(data);
+      try {
+        const response = await fetch(url, {
+          method: "post",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(params),
+        });
+        const data = await response.json();
+        this.setState(() => {
+          return {
+            result: data,
+            isLoading: false,
+            selectedImage: null,
+            message: "",
+          };
+        });
+      } catch (error) {
+        this.setState(() => {
+          return {
+            messageBarMessage: error.message,
+            isLoading: false,
+          };
+        });
+        setTimeout(() => {
+          this.setState(() => {
+            return {
+              messageBarMessage: "",
+            };
+          });
+        }, 6000);
+      }
     } else {
       this.setState(() => {
         return {
@@ -80,6 +125,27 @@ class Encode extends Component {
     }
   };
 
+  hideDialog = () => {
+    this.setState(() => {
+      return {
+        result: null,
+        selectedImageName: null,
+        selectedImageType: null,
+      };
+    });
+  };
+
+  openImageInNewTab = () => {
+    window.open(this.state.result.image, "Image");
+  };
+
+  downloadImage = () => {
+    const link = document.createElement("a");
+    link.href = this.state.result.image;
+    link.download =
+      this.state.selectedImageName + "-encoded." + this.state.selectedImageType;
+    link.click();
+  };
   render = () => {
     return (
       <form
@@ -87,6 +153,11 @@ class Encode extends Component {
         onSubmit={this.sendAPIRequest}
         acceptCharset="utf-8"
       >
+        {this.state.messageBarMessage && (
+          <MessageBar messageBarType={MessageBarType.error}>
+            {this.state.messageBarMessage}
+          </MessageBar>
+        )}
         {this.state.selectedImage ? (
           <img
             src={this.state.selectedImage}
@@ -102,11 +173,15 @@ class Encode extends Component {
             />
           </div>
         )}
-
-        <DefaultButton onClick={this.uploadPhoto} id="uploadPhotoButton">
+        <DefaultButton
+          onClick={this.uploadPhoto}
+          id="uploadPhotoButton"
+          disabled={this.state.isLoading}
+        >
           {this.state.selectedImage ? "Change" : "Upload"} Photo
         </DefaultButton>
         <TextField
+          disabled={this.state.isLoading}
           required
           placeholder="Message"
           className="Encode-messageInput"
@@ -115,9 +190,12 @@ class Encode extends Component {
           value={this.state.message}
           onChange={this.onInputChange}
         ></TextField>
-
-        <PrimaryButton className="Encode-submitButton" type="submit">
-          Submit
+        <PrimaryButton
+          className="Encode-submitButton"
+          type="submit"
+          disabled={this.state.isLoading}
+        >
+          {this.state.isLoading ? <Spinner /> : "Submit"}
         </PrimaryButton>
 
         {this.state.isTeachingBubbleVisible && (
@@ -128,6 +206,14 @@ class Encode extends Component {
             headline="Upload a Photo to encode message."
           ></TeachingBubble>
         )}
+        <Dialog hidden={!this.state.result} onDismiss={this.hideDialog}>
+          <div className="Encode-dialog">
+            <Text variant="xLarge">Message Encoded</Text>
+            <PrimaryButton onClick={this.openImageInNewTab} text="Open Image" />
+            <PrimaryButton onClick={this.downloadImage} text="Download Image" />
+            <DefaultButton onClick={this.hideDialog} text="Close" />
+          </div>
+        </Dialog>
       </form>
     );
   };
