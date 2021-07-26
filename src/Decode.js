@@ -1,5 +1,14 @@
 import React, { Component } from "react";
-import { PrimaryButton, DefaultButton, TeachingBubble } from "@fluentui/react";
+import {
+  PrimaryButton,
+  DefaultButton,
+  TeachingBubble,
+  MessageBar,
+  MessageBarType,
+  Spinner,
+  Dialog,
+  Text,
+} from "@fluentui/react";
 import { Icon } from "@fluentui/react/lib/Icon";
 import "./stylesheets/Decode.css";
 
@@ -9,6 +18,9 @@ class Decode extends Component {
     this.state = {
       selectedImage: null,
       isTeachingBubbleVisible: false,
+      messageBarMessage: "",
+      isLoading: false,
+      result: null,
     };
   }
   uploadPhoto = () => {
@@ -31,21 +43,46 @@ class Decode extends Component {
   sendAPIRequest = async (e) => {
     e.preventDefault();
     if (this.state.selectedImage) {
-      // const url = "https://hiddenapi.herokuapp.com/encode/";
-      const url = "http://127.0.0.1:8000/decode";
+      const url = "https://hiddenapi.herokuapp.com/decode/";
+      // const url = "http://127.0.0.1:8000/decode";
       const params = {
         image: this.state.selectedImage,
       };
-
-      const response = await fetch(url, {
-        method: "post",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(params),
+      this.setState(() => {
+        return {
+          isLoading: true,
+        };
       });
-      const data = await response.json();
-      console.log(data);
+      try {
+        const response = await fetch(url, {
+          method: "post",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(params),
+        });
+        const data = await response.json();
+        this.setState(() => {
+          return {
+            isLoading: false,
+            result: data,
+          };
+        });
+      } catch (error) {
+        this.setState(() => {
+          return {
+            messageBarMessage: error.message,
+            isLoading: false,
+          };
+        });
+        setTimeout(() => {
+          this.setState(() => {
+            return {
+              messageBarMessage: "",
+            };
+          });
+        }, 6000);
+      }
     } else {
       this.setState(() => {
         return {
@@ -55,9 +92,22 @@ class Decode extends Component {
     }
   };
 
+  hideDialog = () => {
+    this.setState(() => {
+      return {
+        result: null,
+      };
+    });
+  };
+
   render = () => {
     return (
       <form className="Decode" onSubmit={this.sendAPIRequest}>
+        {this.state.messageBarMessage && (
+          <MessageBar messageBarType={MessageBarType.error}>
+            {this.state.messageBarMessage}
+          </MessageBar>
+        )}
         {this.state.selectedImage ? (
           <img
             src={this.state.selectedImage}
@@ -73,11 +123,19 @@ class Decode extends Component {
             />
           </div>
         )}
-        <DefaultButton onClick={this.uploadPhoto} id="uploadPhotoButton">
+        <DefaultButton
+          onClick={this.uploadPhoto}
+          disabled={this.state.isLoading}
+          id="uploadPhotoButton"
+        >
           {this.state.selectedImage ? "Change" : "Upload"} Photo
         </DefaultButton>
-        <PrimaryButton className="Decode-submitButton" type="submit">
-          Submit
+        <PrimaryButton
+          className="Decode-submitButton"
+          type="submit"
+          disabled={this.state.isLoading}
+        >
+          {this.state.isLoading ? <Spinner /> : "Submit"}
         </PrimaryButton>
 
         {this.state.isTeachingBubbleVisible && (
@@ -88,6 +146,15 @@ class Decode extends Component {
             headline="Upload a Photo to decode message."
           ></TeachingBubble>
         )}
+        <Dialog hidden={!this.state.result} onDismiss={this.hideDialog}>
+          <div className="Decode-dialog">
+            <Text variant="xLarge">Message Decoded</Text>
+            <Text className="Decode-dialogResult">
+              {this.state.result ? this.state.result.message : ""}
+            </Text>
+            <DefaultButton onClick={this.hideDialog} text="Close" />
+          </div>
+        </Dialog>
       </form>
     );
   };
