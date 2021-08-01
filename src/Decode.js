@@ -26,7 +26,7 @@ class Decode extends Component {
   uploadPhoto = () => {
     let input = document.createElement("input");
     input.setAttribute("type", "file");
-    input.setAttribute("accept", "image/*");
+    input.setAttribute("accept", "image/png");
     input.click();
     input.onchange = this.getSelectedImage;
   };
@@ -42,6 +42,7 @@ class Decode extends Component {
   };
   sendAPIRequest = async (e) => {
     e.preventDefault();
+    clearTimeout(this.timeoutid);
     if (this.state.selectedImage) {
       const url = "https://hiddenapi.herokuapp.com/decode/";
       // const url = "http://127.0.0.1:8000/decode";
@@ -62,12 +63,17 @@ class Decode extends Component {
           body: JSON.stringify(params),
         });
         const data = await response.json();
-        this.setState(() => {
-          return {
-            isLoading: false,
-            result: data,
-          };
-        });
+        if (response.status === 200) {
+          this.setState(() => {
+            return {
+              isLoading: false,
+              result: data,
+              selectedImage: null,
+            };
+          });
+        } else {
+          throw new Error(data.detail);
+        }
       } catch (error) {
         this.setState(() => {
           return {
@@ -75,7 +81,7 @@ class Decode extends Component {
             isLoading: false,
           };
         });
-        setTimeout(() => {
+        this.timeoutid = setTimeout(() => {
           this.setState(() => {
             return {
               messageBarMessage: "",
