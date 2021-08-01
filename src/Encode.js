@@ -24,7 +24,6 @@ class Encode extends Component {
       messageBarMessage: "",
       isLoading: false,
       selectedImageName: null,
-      selectedImageType: null,
     };
   }
 
@@ -40,14 +39,12 @@ class Encode extends Component {
     const fReader = new FileReader();
     const indexOfPath = e.target.files[0].name.lastIndexOf(".");
     const filename = e.target.files[0].name.substr(0, indexOfPath);
-    const filetype = e.target.files[0].name.substr(indexOfPath + 1);
     fReader.readAsDataURL(e.target.files[0]);
     fReader.onloadend = (event) => {
       this.setState(() => {
         return {
           selectedImage: event.target.result,
           selectedImageName: filename,
-          selectedImageType: filetype,
         };
       });
     };
@@ -134,7 +131,6 @@ class Encode extends Component {
       return {
         result: null,
         selectedImageName: null,
-        selectedImageType: null,
       };
     });
   };
@@ -146,8 +142,7 @@ class Encode extends Component {
   downloadImage = () => {
     const link = document.createElement("a");
     link.href = this.state.result.image;
-    link.download =
-      this.state.selectedImageName + "-encoded." + this.state.selectedImageType;
+    link.download = this.state.selectedImageName + "-encoded.png";
     link.click();
   };
   render = () => {
@@ -213,18 +208,24 @@ class Encode extends Component {
         <Dialog hidden={!this.state.result} onDismiss={this.hideDialog}>
           <div className="Encode-dialog">
             <Text variant="xLarge">Message Encoded</Text>
+            <Text variant="large">
+              Note: Message cannot get decoded if image is further compressed.
+            </Text>
             <Text variant="xLarge">
               Number of Pixels Modified:{" "}
               {this.state.result && this.state.result.noOfPixelsModified}
             </Text>
             <Text variant="xLarge">
-              Percentage of Image Modified:{" "}
+              Percentage of Image Modified: ≈
               {this.state.result &&
                 this.state.result.percentOfImageModified.toFixed(2)}
               %
             </Text>
             <PrimaryButton onClick={this.openImageInNewTab} text="Open Image" />
-            <PrimaryButton onClick={this.downloadImage} text="Download Image" />
+            <PrimaryButton
+              onClick={this.downloadImage}
+              text="Download Image (.png)"
+            />
             <DefaultButton onClick={this.hideDialog} text="Close" />
           </div>
         </Dialog>
