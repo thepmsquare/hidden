@@ -9,7 +9,7 @@ class Hidden extends Component {
     return (
       <div className="Hidden">
         <Text variant="mega" color="black">
-          Hidden
+          hidden
         </Text>
         <Pivot>
           <PivotItem headerText="Encode">
