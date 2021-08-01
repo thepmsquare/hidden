@@ -11,6 +11,7 @@ import {
   Text,
 } from "@fluentui/react";
 import { Icon } from "@fluentui/react/lib/Icon";
+import { downloadZip } from "client-zip";
 import "./stylesheets/Encode.css";
 
 class Encode extends Component {
@@ -139,10 +140,21 @@ class Encode extends Component {
     window.open(this.state.result.image, "Image");
   };
 
-  downloadImage = () => {
+  downloadImage = async () => {
     const link = document.createElement("a");
-    link.href = this.state.result.image;
-    link.download = this.state.selectedImageName + "-encoded.png";
+
+    let myblob = await fetch(this.state.result.image);
+    myblob = await myblob.blob();
+
+    const blob = await downloadZip([
+      {
+        name: this.state.selectedImageName + "-encoded.png",
+        lastModified: new Date(),
+        input: myblob,
+      },
+    ]).blob();
+    link.href = URL.createObjectURL(blob);
+    link.download = this.state.selectedImageName + "-encoded.zip";
     link.click();
   };
   render = () => {
@@ -224,7 +236,7 @@ class Encode extends Component {
             <PrimaryButton onClick={this.openImageInNewTab} text="Open Image" />
             <PrimaryButton
               onClick={this.downloadImage}
-              text="Download Image (.png)"
+              text="Download Image (.zip -> .png)"
             />
             <DefaultButton onClick={this.hideDialog} text="Close" />
           </div>
