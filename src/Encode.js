@@ -213,6 +213,16 @@ class Encode extends Component {
         <Dialog hidden={!this.state.result} onDismiss={this.hideDialog}>
           <div className="Encode-dialog">
             <Text variant="xLarge">Message Encoded</Text>
+            <Text variant="xLarge">
+              Number of Pixels Modified:{" "}
+              {this.state.result && this.state.result.noOfPixelsModified}
+            </Text>
+            <Text variant="xLarge">
+              Percentage of Image Modified:{" "}
+              {this.state.result &&
+                this.state.result.percentOfImageModified.toFixed(2)}
+              %
+            </Text>
             <PrimaryButton onClick={this.openImageInNewTab} text="Open Image" />
             <PrimaryButton onClick={this.downloadImage} text="Download Image" />
             <DefaultButton onClick={this.hideDialog} text="Close" />
