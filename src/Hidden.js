@@ -18,9 +18,6 @@ class Hidden extends Component {
           <PivotItem headerText="Decode">
             <Decode />
           </PivotItem>
-          <PivotItem headerText="About">
-            <Text>About</Text>
-          </PivotItem>
         </Pivot>
       </div>
     );
