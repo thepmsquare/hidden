@@ -40,15 +40,26 @@ class Decode extends Component {
       });
     };
   };
+  dataURLtoBlob = (dataurl) => {
+    let arr = dataurl.split(","),
+      mime = arr[0].match(/:(.*?);/)[1],
+      bstr = atob(arr[1]),
+      n = bstr.length,
+      u8arr = new Uint8Array(n);
+    while (n--) {
+      u8arr[n] = bstr.charCodeAt(n);
+    }
+    return new Blob([u8arr], { type: mime });
+  };
+
   sendAPIRequest = async (e) => {
     e.preventDefault();
     clearTimeout(this.timeoutid);
     if (this.state.selectedImage) {
       const url = "https://hiddenapi.herokuapp.com/decode/";
       // const url = "http://127.0.0.1:8000/decode";
-      const params = {
-        image: this.state.selectedImage,
-      };
+      let fd = new FormData();
+      fd.append("image", this.dataURLtoBlob(this.state.selectedImage));
       this.setState(() => {
         return {
           isLoading: true,
@@ -57,10 +68,7 @@ class Decode extends Component {
       try {
         const response = await fetch(url, {
           method: "post",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(params),
+          body: fd,
         });
         const data = await response.json();
         if (response.status === 200) {
