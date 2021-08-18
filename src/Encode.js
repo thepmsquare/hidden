@@ -163,20 +163,19 @@ class Encode extends Component {
   };
 
   openImageInNewTab = async () => {
-    let myblob = await fetch(this.state.result.blob);
-    myblob = await myblob.blob();
-    let url = URL.createObjectURL(myblob);
-    let anchor = document.createElement("a");
-    anchor.href = url;
-    anchor.target = "_blank";
-    anchor.click();
+    let blob = new Blob([this.state.result.blob.value.buffer], {
+      type: "image/png",
+    });
+    let url = URL.createObjectURL(blob);
+    window.open(url);
   };
 
   downloadImage = async () => {
     const link = document.createElement("a");
 
-    let myblob = await fetch(this.state.result.image);
-    myblob = await myblob.blob();
+    let myblob = new Blob([this.state.result.blob.value.buffer], {
+      type: "image/png",
+    });
 
     const blob = await downloadZip([
       {
