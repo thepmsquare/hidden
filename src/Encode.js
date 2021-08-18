@@ -102,11 +102,6 @@ class Encode extends Component {
           body: fd,
         });
         let blob = await response.body.getReader().read();
-        console.log(
-          typeof parseFloat(
-            response.headers.get("percentofimagemodified")
-          ).toFixed(2)
-        );
         const result = {
           blob,
           noofpixelsmodified: parseInt(
