@@ -25,13 +25,14 @@ class Encode extends Component {
       messageBarMessage: "",
       isLoading: false,
       selectedImageName: null,
+      selectedImageType: null,
     };
   }
 
   uploadPhoto = () => {
     let input = document.createElement("input");
     input.setAttribute("type", "file");
-    input.setAttribute("accept", "image/*");
+    input.setAttribute("accept", "image/png,image/jpeg");
     input.click();
     input.onchange = this.getSelectedImage;
   };
@@ -40,12 +41,14 @@ class Encode extends Component {
     const fReader = new FileReader();
     const indexOfPath = e.target.files[0].name.lastIndexOf(".");
     const filename = e.target.files[0].name.substr(0, indexOfPath);
+    const filetype = e.target.files[0].name.substr(indexOfPath + 1);
     fReader.readAsDataURL(e.target.files[0]);
     fReader.onloadend = (event) => {
       this.setState(() => {
         return {
           selectedImage: event.target.result,
           selectedImageName: filename,
+          selectedImageType: filetype,
         };
       });
     };
@@ -67,16 +70,27 @@ class Encode extends Component {
     });
   };
 
+  dataURLtoBlob = (dataurl) => {
+    let arr = dataurl.split(","),
+      mime = arr[0].match(/:(.*?);/)[1],
+      bstr = atob(arr[1]),
+      n = bstr.length,
+      u8arr = new Uint8Array(n);
+    while (n--) {
+      u8arr[n] = bstr.charCodeAt(n);
+    }
+    return new Blob([u8arr], { type: mime });
+  };
+
   sendAPIRequest = async (e) => {
     e.preventDefault();
     clearTimeout(this.timeoutid);
     if (this.state.selectedImage) {
       const url = "https://hiddenapi.herokuapp.com/encode";
       // const url = "http://127.0.0.1:8000/encode";
-      const params = {
-        image: this.state.selectedImage,
-        message: this.state.message,
-      };
+      let fd = new FormData();
+      fd.append("message", this.state.message);
+      fd.append("image", this.dataURLtoBlob(this.state.selectedImage));
       this.setState(() => {
         return {
           isLoading: true,
@@ -85,22 +99,34 @@ class Encode extends Component {
       try {
         const response = await fetch(url, {
           method: "post",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(params),
+          body: fd,
         });
-        const data = await response.json();
+        let blob = await response.body.getReader().read();
+        console.log(
+          typeof parseFloat(
+            response.headers.get("percentofimagemodified")
+          ).toFixed(2)
+        );
+        const result = {
+          blob,
+          noofpixelsmodified: parseInt(
+            response.headers.get("noofpixelsmodified")
+          ),
+          percentofimagemodified: parseFloat(
+            response.headers.get("percentofimagemodified")
+          ).toFixed(2),
+        };
         if (response.status === 200) {
           this.setState(() => {
             return {
-              result: data,
+              result,
               isLoading: false,
               selectedImage: null,
               message: "",
             };
           });
         } else {
+          let data = await response.json();
           throw new Error(data.detail);
         }
       } catch (error) {
@@ -136,8 +162,14 @@ class Encode extends Component {
     });
   };
 
-  openImageInNewTab = () => {
-    window.open(this.state.result.image, "Image");
+  openImageInNewTab = async () => {
+    let myblob = await fetch(this.state.result.blob);
+    myblob = await myblob.blob();
+    let url = URL.createObjectURL(myblob);
+    let anchor = document.createElement("a");
+    anchor.href = url;
+    anchor.target = "_blank";
+    anchor.click();
   };
 
   downloadImage = async () => {
@@ -225,13 +257,11 @@ class Encode extends Component {
             </Text>
             <Text variant="xLarge">
               Number of Pixels Modified:{" "}
-              {this.state.result && this.state.result.noOfPixelsModified}
+              {this.state.result && this.state.result.noofpixelsmodified}
             </Text>
             <Text variant="xLarge">
               Percentage of Image Modified: ≈
-              {this.state.result &&
-                this.state.result.percentOfImageModified.toFixed(2)}
-              %
+              {this.state.result && this.state.result.percentofimagemodified}%
             </Text>
             <PrimaryButton onClick={this.openImageInNewTab} text="Open Image" />
             <PrimaryButton
