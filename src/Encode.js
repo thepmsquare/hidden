@@ -82,6 +82,20 @@ class Encode extends Component {
     return new Blob([u8arr], { type: mime });
   };
 
+  readAllChunks = async (readableStream) => {
+    const reader = readableStream.getReader();
+    const chunks = [];
+
+    let done, value;
+    while (!done) {
+      ({ value, done } = await reader.read());
+      if (done) {
+        return chunks;
+      }
+      chunks.push(value);
+    }
+  };
+
   sendAPIRequest = async (e) => {
     e.preventDefault();
     clearTimeout(this.timeoutid);
@@ -101,9 +115,20 @@ class Encode extends Component {
           method: "post",
           body: fd,
         });
-        let blob = await response.body.getReader().read();
+        let myArrays = await this.readAllChunks(response.body);
+        let length = 0;
+        myArrays.forEach((item) => {
+          length += item.length;
+        });
+
+        let mergedArray = new Uint8Array(length);
+        let offset = 0;
+        myArrays.forEach((item) => {
+          mergedArray.set(item, offset);
+          offset += item.length;
+        });
         const result = {
-          blob,
+          blob: mergedArray,
           noofpixelsmodified: parseInt(
             response.headers.get("noofpixelsmodified")
           ),
@@ -158,7 +183,7 @@ class Encode extends Component {
   };
 
   openImageInNewTab = async () => {
-    let blob = new Blob([this.state.result.blob.value.buffer], {
+    let blob = new Blob([this.state.result.blob.buffer], {
       type: "image/png",
     });
     let url = URL.createObjectURL(blob);
@@ -168,7 +193,7 @@ class Encode extends Component {
   downloadImage = async () => {
     const link = document.createElement("a");
 
-    let myblob = new Blob([this.state.result.blob.value.buffer], {
+    let myblob = new Blob([this.state.result.blob.buffer], {
       type: "image/png",
     });
 
