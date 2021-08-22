@@ -21,6 +21,7 @@ class Decode extends Component {
       messageBarMessage: "",
       isLoading: false,
       result: null,
+      copied: false,
     };
   }
   uploadPhoto = () => {
@@ -110,7 +111,15 @@ class Decode extends Component {
     this.setState(() => {
       return {
         result: null,
+        copied: false,
       };
+    });
+  };
+
+  copyToClipboard = async () => {
+    await navigator.clipboard.writeText(this.state.result.message);
+    this.setState(() => {
+      return { copied: true };
     });
   };
 
@@ -166,6 +175,10 @@ class Decode extends Component {
             <Text className="Decode-dialogResult">
               {this.state.result ? this.state.result.message : ""}
             </Text>
+            <DefaultButton
+              onClick={this.copyToClipboard}
+              text={this.state.copied ? "Copy Again?" : "Copy to clipboard"}
+            />
             <DefaultButton onClick={this.hideDialog} text="Close" />
           </div>
         </Dialog>

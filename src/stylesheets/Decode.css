@@ -30,4 +30,5 @@
   max-height: 10rem;
   overflow: auto;
   text-align: justify;
+  white-space: pre-wrap;
 }
