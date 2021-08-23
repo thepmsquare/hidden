@@ -146,7 +146,13 @@ class Decode extends Component {
 
   render = () => {
     return (
-      <form className="Decode" onSubmit={this.sendAPIRequest}>
+      <form
+        className="Decode"
+        onSubmit={this.sendAPIRequest}
+        acceptCharset="utf-8"
+        autocomplete="off"
+      >
+        <input autocomplete="off" style={{ display: "none" }}></input>
         {this.state.messageBarMessage && (
           <MessageBar messageBarType={MessageBarType.error}>
             {this.state.messageBarMessage}
