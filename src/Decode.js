@@ -143,7 +143,13 @@ class Decode extends Component {
       return { copied: true };
     });
   };
-
+  hideTeachingBubble = () => {
+    this.setState(() => {
+      return {
+        isTeachingBubbleVisible: false,
+      };
+    });
+  };
   render = () => {
     return (
       <form
