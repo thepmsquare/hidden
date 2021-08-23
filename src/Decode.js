@@ -8,8 +8,10 @@ import {
   Spinner,
   Dialog,
   Text,
+  TextField,
 } from "@fluentui/react";
 import { Icon } from "@fluentui/react/lib/Icon";
+import CryptoJS from "crypto-js";
 import "./stylesheets/Decode.css";
 
 class Decode extends Component {
@@ -17,6 +19,7 @@ class Decode extends Component {
     super(props);
     this.state = {
       selectedImage: null,
+      password: "",
       isTeachingBubbleVisible: false,
       messageBarMessage: "",
       isLoading: false,
@@ -31,7 +34,14 @@ class Decode extends Component {
     input.click();
     input.onchange = this.getSelectedImage;
   };
-
+  onInputChange = (e) => {
+    const name = e.target.getAttribute("name");
+    this.setState(() => {
+      return {
+        [name]: e.target.value,
+      };
+    });
+  };
   getSelectedImage = (e) => {
     const fReader = new FileReader();
     fReader.readAsDataURL(e.target.files[0]);
@@ -73,11 +83,22 @@ class Decode extends Component {
         });
         const data = await response.json();
         if (response.status === 200) {
+          let message = data.message;
+          if (this.state.password) {
+            let bytes = CryptoJS.AES.decrypt(data.message, this.state.password);
+            message = bytes.toString(CryptoJS.enc.Utf8);
+            console.log(message);
+            if (message === "") {
+              throw new Error("Wrong Password.");
+            }
+          }
+
           this.setState(() => {
             return {
               isLoading: false,
-              result: data,
+              result: message,
               selectedImage: null,
+              password: "",
             };
           });
         } else {
@@ -153,6 +174,14 @@ class Decode extends Component {
         >
           {this.state.selectedImage ? "Change" : "Upload"} Photo
         </DefaultButton>
+        <TextField
+          disabled={this.state.isLoading}
+          placeholder="Optional Password"
+          name="password"
+          type="password"
+          value={this.state.password}
+          onChange={this.onInputChange}
+        ></TextField>
         <PrimaryButton
           className="Decode-submitButton"
           type="submit"
@@ -173,7 +202,7 @@ class Decode extends Component {
           <div className="Decode-dialog">
             <Text variant="xLarge">Message Decoded</Text>
             <Text className="Decode-dialogResult">
-              {this.state.result ? this.state.result.message : ""}
+              {this.state.result ? this.state.result : ""}
             </Text>
             <DefaultButton
               onClick={this.copyToClipboard}

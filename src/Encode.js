@@ -12,6 +12,7 @@ import {
 } from "@fluentui/react";
 import { Icon } from "@fluentui/react/lib/Icon";
 import { downloadZip } from "client-zip";
+import CryptoJS from "crypto-js";
 import "./stylesheets/Encode.css";
 
 class Encode extends Component {
@@ -21,6 +22,7 @@ class Encode extends Component {
       selectedImage: null,
       isTeachingBubbleVisible: false,
       message: "",
+      password: "",
       result: null,
       messageBarMessage: "",
       isLoading: false,
@@ -63,9 +65,10 @@ class Encode extends Component {
   };
 
   onInputChange = (e) => {
+    const name = e.target.getAttribute("name");
     this.setState(() => {
       return {
-        message: e.target.value,
+        [name]: e.target.value,
       };
     });
   };
@@ -102,8 +105,16 @@ class Encode extends Component {
     if (this.state.selectedImage) {
       const url = "https://hiddenapi.herokuapp.com/encode";
       // const url = "http://127.0.0.1:8000/encode";
+      let message = this.state.message;
+      if (this.state.password) {
+        message = CryptoJS.AES.encrypt(
+          this.state.message,
+          this.state.password
+        ).toString();
+      }
+
       let fd = new FormData();
-      fd.append("message", this.state.message);
+      fd.append("message", message);
       fd.append("image", this.dataURLtoBlob(this.state.selectedImage));
       this.setState(() => {
         return {
@@ -143,6 +154,7 @@ class Encode extends Component {
               isLoading: false,
               selectedImage: null,
               message: "",
+              password: "",
             };
           });
         } else {
@@ -246,10 +258,18 @@ class Encode extends Component {
           disabled={this.state.isLoading}
           required
           placeholder="Message"
-          className="Encode-messageInput"
+          name="message"
           resizable={false}
           multiline
           value={this.state.message}
+          onChange={this.onInputChange}
+        ></TextField>
+        <TextField
+          disabled={this.state.isLoading}
+          placeholder="Optional Password"
+          name="password"
+          type="password"
+          value={this.state.password}
           onChange={this.onInputChange}
         ></TextField>
         <PrimaryButton
