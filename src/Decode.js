@@ -25,6 +25,7 @@ class Decode extends Component {
       isLoading: false,
       result: null,
       copied: false,
+      requestStatus: "",
     };
   }
   uploadPhoto = () => {
@@ -74,6 +75,7 @@ class Decode extends Component {
       this.setState(() => {
         return {
           isLoading: true,
+          requestStatus: "Sending Image... ",
         };
       });
       try {
@@ -81,13 +83,26 @@ class Decode extends Component {
           method: "post",
           body: fd,
         });
+        this.setState(() => {
+          return {
+            isLoading: true,
+            requestStatus: "Processing... ",
+          };
+        });
         const data = await response.json();
         if (response.status === 200) {
           let message = data.message;
           if (this.state.password) {
-            let bytes = CryptoJS.AES.decrypt(data.message, this.state.password);
-            message = bytes.toString(CryptoJS.enc.Utf8);
-            console.log(message);
+            try {
+              let bytes = CryptoJS.AES.decrypt(
+                data.message,
+                this.state.password
+              );
+              message = bytes.toString(CryptoJS.enc.Utf8);
+            } catch (error) {
+              throw new Error("Wrong Password.");
+            }
+
             if (message === "") {
               throw new Error("Wrong Password.");
             }
@@ -99,6 +114,7 @@ class Decode extends Component {
               result: message,
               selectedImage: null,
               password: "",
+              requestStatus: "",
             };
           });
         } else {
@@ -109,6 +125,7 @@ class Decode extends Component {
           return {
             messageBarMessage: error.message,
             isLoading: false,
+            requestStatus: "",
           };
         });
         this.timeoutid = setTimeout(() => {
@@ -194,12 +211,14 @@ class Decode extends Component {
           value={this.state.password}
           onChange={this.onInputChange}
         ></TextField>
-        <PrimaryButton
-          className="Decode-submitButton"
-          type="submit"
-          disabled={this.state.isLoading}
-        >
-          {this.state.isLoading ? <Spinner /> : "Submit"}
+        <PrimaryButton type="submit" disabled={this.state.isLoading}>
+          {this.state.isLoading ? (
+            <span className="Decode-submitButton">
+              {this.state.requestStatus} <Spinner />
+            </span>
+          ) : (
+            "Submit"
+          )}
         </PrimaryButton>
 
         {this.state.isTeachingBubbleVisible && (

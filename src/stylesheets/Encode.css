@@ -26,3 +26,8 @@
   flex-direction: column;
   gap: 1rem;
 }
+.Encode-submitButton {
+  display: flex;
+  gap: 1rem;
+  color: rgb(0, 120, 212);
+}

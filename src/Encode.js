@@ -28,6 +28,7 @@ class Encode extends Component {
       isLoading: false,
       selectedImageName: null,
       selectedImageType: null,
+      requestStatus: "",
     };
   }
 
@@ -119,12 +120,18 @@ class Encode extends Component {
       this.setState(() => {
         return {
           isLoading: true,
+          requestStatus: "Sending Image... ",
         };
       });
       try {
         const response = await fetch(url, {
           method: "post",
           body: fd,
+        });
+        this.setState(() => {
+          return {
+            requestStatus: "Receiving processed image... ",
+          };
         });
         let myArrays = await this.readAllChunks(response.body);
         let length = 0;
@@ -155,6 +162,7 @@ class Encode extends Component {
               selectedImage: null,
               message: "",
               password: "",
+              requestStatus: "",
             };
           });
         } else {
@@ -166,6 +174,7 @@ class Encode extends Component {
           return {
             messageBarMessage: error.message,
             isLoading: false,
+            requestStatus: "",
           };
         });
         this.timeoutid = setTimeout(() => {
@@ -274,12 +283,14 @@ class Encode extends Component {
           value={this.state.password}
           onChange={this.onInputChange}
         ></TextField>
-        <PrimaryButton
-          className="Encode-submitButton"
-          type="submit"
-          disabled={this.state.isLoading}
-        >
-          {this.state.isLoading ? <Spinner /> : "Submit"}
+        <PrimaryButton type="submit" disabled={this.state.isLoading}>
+          {this.state.isLoading ? (
+            <span className="Encode-submitButton">
+              {this.state.requestStatus} <Spinner />
+            </span>
+          ) : (
+            "Submit"
+          )}
         </PrimaryButton>
 
         {this.state.isTeachingBubbleVisible && (

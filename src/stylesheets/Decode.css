@@ -32,3 +32,8 @@
   text-align: justify;
   white-space: pre-wrap;
 }
+.Decode-submitButton {
+  display: flex;
+  gap: 1rem;
+  color: rgb(0, 120, 212);
+}
