@@ -173,9 +173,9 @@ class Decode extends Component {
         className="Decode"
         onSubmit={this.sendAPIRequest}
         acceptCharset="utf-8"
-        autocomplete="off"
+        autoComplete="off"
       >
-        <input autocomplete="off" style={{ display: "none" }}></input>
+        <input autoComplete="off" style={{ display: "none" }}></input>
         {this.state.messageBarMessage && (
           <MessageBar messageBarType={MessageBarType.error}>
             {this.state.messageBarMessage}
