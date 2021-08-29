@@ -44,13 +44,34 @@ class Decode extends Component {
     });
   };
   getSelectedImage = (e) => {
-    const fReader = new FileReader();
-    fReader.readAsDataURL(e.target.files[0]);
-    fReader.onloadend = (event) => {
+    clearTimeout(this.timeoutid);
+    const indexOfPath = e.target.files[0].name.lastIndexOf(".");
+    const filetype = e.target.files[0].name
+      .substr(indexOfPath + 1)
+      .toLowerCase();
+    if (filetype === "png") {
+      const fReader = new FileReader();
+      fReader.readAsDataURL(e.target.files[0]);
+      fReader.onloadend = (event) => {
+        this.setState(() => {
+          return { selectedImage: event.target.result };
+        });
+      };
+    } else {
       this.setState(() => {
-        return { selectedImage: event.target.result };
+        return {
+          messageBarMessage:
+            "Unsupported image format. Currently supported formats: image/png.",
+        };
       });
-    };
+      this.timeoutid = setTimeout(() => {
+        this.setState(() => {
+          return {
+            messageBarMessage: "",
+          };
+        });
+      }, 6000);
+    }
   };
   dataURLtoBlob = (dataurl) => {
     let arr = dataurl.split(","),
