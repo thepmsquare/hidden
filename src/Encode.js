@@ -41,20 +41,46 @@ class Encode extends Component {
   };
 
   getSelectedImage = (e) => {
-    const fReader = new FileReader();
+    clearTimeout(this.timeoutid);
     const indexOfPath = e.target.files[0].name.lastIndexOf(".");
     const filename = e.target.files[0].name.substr(0, indexOfPath);
-    const filetype = e.target.files[0].name.substr(indexOfPath + 1);
-    fReader.readAsDataURL(e.target.files[0]);
-    fReader.onloadend = (event) => {
+    const filetype = e.target.files[0].name
+      .substr(indexOfPath + 1)
+      .toLowerCase();
+    if (
+      filetype === "png" ||
+      filetype === "jpg" ||
+      filetype === "jpeg" ||
+      filetype === "jfif" ||
+      filetype === "pjpeg" ||
+      filetype === "pjp"
+    ) {
+      const fReader = new FileReader();
+      fReader.readAsDataURL(e.target.files[0]);
+      fReader.onloadend = (event) => {
+        this.setState(() => {
+          return {
+            selectedImage: event.target.result,
+            selectedImageName: filename,
+            selectedImageType: filetype,
+          };
+        });
+      };
+    } else {
       this.setState(() => {
         return {
-          selectedImage: event.target.result,
-          selectedImageName: filename,
-          selectedImageType: filetype,
+          messageBarMessage:
+            "Unsupported image format. Currently supported formats: image/jpeg, image/png.",
         };
       });
-    };
+      this.timeoutid = setTimeout(() => {
+        this.setState(() => {
+          return {
+            messageBarMessage: "",
+          };
+        });
+      }, 6000);
+    }
   };
 
   hideTeachingBubble = () => {
@@ -229,6 +255,7 @@ class Encode extends Component {
     link.download = this.state.selectedImageName + "-encoded.zip";
     link.click();
   };
+
   render = () => {
     return (
       <form
