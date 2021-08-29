@@ -68,7 +68,7 @@ class Decode extends Component {
     e.preventDefault();
     clearTimeout(this.timeoutid);
     if (this.state.selectedImage) {
-      const url = "https://hiddenapi.herokuapp.com/decode/";
+      const url = "https://hiddenapi.herokuapp.com/decode";
       // const url = "http://127.0.0.1:8000/decode";
       let fd = new FormData();
       fd.append("image", this.dataURLtoBlob(this.state.selectedImage));
