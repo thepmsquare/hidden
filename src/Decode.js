@@ -13,6 +13,7 @@ import {
 import { Icon } from "@fluentui/react/lib/Icon";
 import CryptoJS from "crypto-js";
 import "./stylesheets/Decode.css";
+import link from "./utils/link";
 
 class Decode extends Component {
   constructor(props) {
