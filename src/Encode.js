@@ -14,6 +14,7 @@ import { Icon } from "@fluentui/react/lib/Icon";
 import { downloadZip } from "client-zip";
 import CryptoJS from "crypto-js";
 import "./stylesheets/Encode.css";
+import link from "./utils/link";
 
 class Encode extends Component {
   constructor(props) {
@@ -130,7 +131,7 @@ class Encode extends Component {
     e.preventDefault();
     clearTimeout(this.timeoutid);
     if (this.state.selectedImage) {
-      const url = "https://default-1-u1199054.deta.app/encode";
+      const url = link.encode;
       // const url = "http://127.0.0.1:8000/encode";
       let message = this.state.message;
       if (this.state.password) {
