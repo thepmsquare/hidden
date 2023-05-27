@@ -89,7 +89,7 @@ class Decode extends Component {
     e.preventDefault();
     clearTimeout(this.timeoutid);
     if (this.state.selectedImage) {
-      const url = "https://ycxyc3.deta.dev/decode";
+      const url = "https://default-1-u1199054.deta.app/decode";
       // const url = "http://127.0.0.1:8000/decode";
       let fd = new FormData();
       fd.append("image", this.dataURLtoBlob(this.state.selectedImage));

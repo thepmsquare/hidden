@@ -130,7 +130,7 @@ class Encode extends Component {
     e.preventDefault();
     clearTimeout(this.timeoutid);
     if (this.state.selectedImage) {
-      const url = "https://ycxyc3.deta.dev/encode";
+      const url = "https://default-1-u1199054.deta.app/encode";
       // const url = "http://127.0.0.1:8000/encode";
       let message = this.state.message;
       if (this.state.password) {
