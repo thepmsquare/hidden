@@ -15,8 +15,8 @@
   cursor: pointer;
 }
 .Encode-photo {
-  height: 2rem;
-  width: 2rem;
+  height: 6rem;
+  width: 6rem;
   margin: 0 auto;
   object-fit: contain;
 }

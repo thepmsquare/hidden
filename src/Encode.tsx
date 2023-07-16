@@ -1,4 +1,4 @@
-import React, { Component } from "react";
+import { Component } from "react";
 import {
   PrimaryButton,
   TextField,
@@ -14,10 +14,11 @@ import { Icon } from "@fluentui/react/lib/Icon";
 import { downloadZip } from "client-zip";
 import CryptoJS from "crypto-js";
 import "./stylesheets/Encode.css";
-import link from "./utils/link";
+import config from "./utils/config";
 
 class Encode extends Component {
-  constructor(props) {
+  timeoutid: number;
+  constructor(props: {}) {
     super(props);
     this.state = {
       selectedImage: null,
@@ -43,6 +44,9 @@ class Encode extends Component {
 
   getSelectedImage = (e) => {
     clearTimeout(this.timeoutid);
+    if (!e.target) {
+      throw Error("Unexpected error");
+    }
     const indexOfPath = e.target.files[0].name.lastIndexOf(".");
     const filename = e.target.files[0].name.substr(0, indexOfPath);
     const filetype = e.target.files[0].name
@@ -101,7 +105,7 @@ class Encode extends Component {
     });
   };
 
-  dataURLtoBlob = (dataurl) => {
+  dataURLtoBlob = (dataurl: string) => {
     let arr = dataurl.split(","),
       mime = arr[0].match(/:(.*?);/)[1],
       bstr = atob(arr[1]),
@@ -113,7 +117,7 @@ class Encode extends Component {
     return new Blob([u8arr], { type: mime });
   };
 
-  readAllChunks = async (readableStream) => {
+  readAllChunks = async (readableStream: ReadableStream<Uint8Array>) => {
     const reader = readableStream.getReader();
     const chunks = [];
 
@@ -130,20 +134,20 @@ class Encode extends Component {
   sendAPIRequest = async (e) => {
     e.preventDefault();
     clearTimeout(this.timeoutid);
-    if (this.state.selectedImage) {
-      const url = link.encode;
+    if ((this.state as any).selectedImage) {
+      const url = config.encodeLink;
       // const url = "http://127.0.0.1:8000/encode";
-      let message = this.state.message;
-      if (this.state.password) {
+      let message = (this.state as any).message;
+      if ((this.state as any).password) {
         message = CryptoJS.AES.encrypt(
-          this.state.message,
-          this.state.password
+          (this.state as any).message,
+          (this.state as any).password
         ).toString();
       }
 
       let fd = new FormData();
       fd.append("message", message);
-      fd.append("image", this.dataURLtoBlob(this.state.selectedImage));
+      fd.append("image", this.dataURLtoBlob((this.state as any).selectedImage));
       this.setState(() => {
         return {
           isLoading: true,
@@ -199,7 +203,7 @@ class Encode extends Component {
       } catch (error) {
         this.setState(() => {
           return {
-            messageBarMessage: error.message,
+            messageBarMessage: (error as any).message,
             isLoading: false,
             requestStatus: "",
           };
@@ -231,7 +235,7 @@ class Encode extends Component {
   };
 
   openImageInNewTab = async () => {
-    let blob = new Blob([this.state.result.blob.buffer], {
+    let blob = new Blob([(this.state as any).result.blob.buffer], {
       type: "image/png",
     });
     let url = URL.createObjectURL(blob);
@@ -241,19 +245,19 @@ class Encode extends Component {
   downloadImage = async () => {
     const link = document.createElement("a");
 
-    let myblob = new Blob([this.state.result.blob.buffer], {
+    let myblob = new Blob([(this.state as any).result.blob.buffer], {
       type: "image/png",
     });
 
     const blob = await downloadZip([
       {
-        name: this.state.selectedImageName + "-encoded.png",
+        name: (this.state as any).selectedImageName + "-encoded.png",
         lastModified: new Date(),
         input: myblob,
       },
     ]).blob();
     link.href = URL.createObjectURL(blob);
-    link.download = this.state.selectedImageName + "-encoded.zip";
+    link.download = (this.state as any).selectedImageName + "-encoded.zip";
     link.click();
   };
 
@@ -266,14 +270,14 @@ class Encode extends Component {
         autoComplete="off"
       >
         <input autoComplete="off" style={{ display: "none" }}></input>
-        {this.state.messageBarMessage && (
+        {(this.state as any).messageBarMessage && (
           <MessageBar messageBarType={MessageBarType.error}>
-            {this.state.messageBarMessage}
+            {(this.state as any).messageBarMessage}
           </MessageBar>
         )}
-        {this.state.selectedImage ? (
+        {(this.state as any).selectedImage ? (
           <img
-            src={this.state.selectedImage}
+            src={(this.state as any).selectedImage}
             alt="plain input to be encoded"
             className="Encode-photo"
           />
@@ -289,39 +293,39 @@ class Encode extends Component {
         <DefaultButton
           onClick={this.uploadPhoto}
           id="uploadPhotoButton"
-          disabled={this.state.isLoading}
+          disabled={(this.state as any).isLoading}
         >
-          {this.state.selectedImage ? "Change" : "Upload"} Photo
+          {(this.state as any).selectedImage ? "Change" : "Upload"} Photo
         </DefaultButton>
         <TextField
-          disabled={this.state.isLoading}
+          disabled={(this.state as any).isLoading}
           required
           placeholder="Message"
           name="message"
           resizable={false}
           multiline
-          value={this.state.message}
+          value={(this.state as any).message}
           onChange={this.onInputChange}
         ></TextField>
         <TextField
-          disabled={this.state.isLoading}
+          disabled={(this.state as any).isLoading}
           placeholder="Optional Password"
           name="password"
           type="password"
-          value={this.state.password}
+          value={(this.state as any).password}
           onChange={this.onInputChange}
         ></TextField>
-        <PrimaryButton type="submit" disabled={this.state.isLoading}>
-          {this.state.isLoading ? (
+        <PrimaryButton type="submit" disabled={(this.state as any).isLoading}>
+          {(this.state as any).isLoading ? (
             <span className="Encode-submitButton">
-              {this.state.requestStatus} <Spinner />
+              {(this.state as any).requestStatus} <Spinner />
             </span>
           ) : (
             "Submit"
           )}
         </PrimaryButton>
 
-        {this.state.isTeachingBubbleVisible && (
+        {(this.state as any).isTeachingBubbleVisible && (
           <TeachingBubble
             target="#uploadPhotoButton"
             hasSmallHeadline={true}
@@ -329,7 +333,10 @@ class Encode extends Component {
             headline="Upload a Photo to encode message."
           ></TeachingBubble>
         )}
-        <Dialog hidden={!this.state.result} onDismiss={this.hideDialog}>
+        <Dialog
+          hidden={!(this.state as any).result}
+          onDismiss={this.hideDialog}
+        >
           <div className="Encode-dialog">
             <Text variant="xLarge">Message Encoded</Text>
             <Text variant="large">
@@ -337,11 +344,14 @@ class Encode extends Component {
             </Text>
             <Text variant="xLarge">
               Number of Pixels Modified:{" "}
-              {this.state.result && this.state.result.noofpixelsmodified}
+              {(this.state as any).result &&
+                (this.state as any).result.noofpixelsmodified}
             </Text>
             <Text variant="xLarge">
               Percentage of Image Modified: ≈
-              {this.state.result && this.state.result.percentofimagemodified}%
+              {(this.state as any).result &&
+                (this.state as any).result.percentofimagemodified}
+              %
             </Text>
             <PrimaryButton onClick={this.openImageInNewTab} text="Open Image" />
             <PrimaryButton

@@ -21,12 +21,11 @@ Note: APNG or other animated image inputs will have unintended transformations i
 
 Note: Output image will be in RGB / RGBA color modes only.
 
-## To check out the project...
+## built on
 
-> Clone / Download zip
+- NodeJS v18.15.0
+- npm v9.5.0
 
-> run "npm install" (will require node and npm)
+and more inside `package.json`
 
-> run "npm start"
-
-Feedback is appreciated. Thank you!
+### Feedback is appreciated. Thank you!

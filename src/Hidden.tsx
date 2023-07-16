@@ -1,4 +1,4 @@
-import React, { Component } from "react";
+import { Component } from "react";
 import { Text, PivotItem, Pivot } from "@fluentui/react";
 import "./stylesheets/Hidden.css";
 import Encode from "./Encode";

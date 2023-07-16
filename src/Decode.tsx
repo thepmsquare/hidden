@@ -1,4 +1,4 @@
-import React, { Component } from "react";
+import { Component } from "react";
 import {
   PrimaryButton,
   DefaultButton,
@@ -13,10 +13,11 @@ import {
 import { Icon } from "@fluentui/react/lib/Icon";
 import CryptoJS from "crypto-js";
 import "./stylesheets/Decode.css";
-import link from "./utils/link";
+import config from "./utils/config";
 
 class Decode extends Component {
-  constructor(props) {
+  timeoutid: number;
+  constructor(props: {}) {
     super(props);
     this.state = {
       selectedImage: null,
@@ -89,11 +90,11 @@ class Decode extends Component {
   sendAPIRequest = async (e) => {
     e.preventDefault();
     clearTimeout(this.timeoutid);
-    if (this.state.selectedImage) {
-      const url = link.decode;
+    if ((this.state as any).selectedImage) {
+      const url = config.decodeLink;
       // const url = "http://127.0.0.1:8000/decode";
       let fd = new FormData();
-      fd.append("image", this.dataURLtoBlob(this.state.selectedImage));
+      fd.append("image", this.dataURLtoBlob((this.state as any).selectedImage));
       this.setState(() => {
         return {
           isLoading: true,
@@ -114,11 +115,11 @@ class Decode extends Component {
         const data = await response.json();
         if (response.status === 200) {
           let message = data.message;
-          if (this.state.password) {
+          if ((this.state as any).password) {
             try {
               let bytes = CryptoJS.AES.decrypt(
                 data.message,
-                this.state.password
+                (this.state as any).password
               );
               message = bytes.toString(CryptoJS.enc.Utf8);
             } catch (error) {
@@ -145,7 +146,7 @@ class Decode extends Component {
       } catch (error) {
         this.setState(() => {
           return {
-            messageBarMessage: error.message,
+            messageBarMessage: (error as any).message,
             isLoading: false,
             requestStatus: "",
           };
@@ -177,7 +178,7 @@ class Decode extends Component {
   };
 
   copyToClipboard = async () => {
-    await navigator.clipboard.writeText(this.state.result);
+    await navigator.clipboard.writeText((this.state as any).result);
     this.setState(() => {
       return { copied: true };
     });
@@ -198,14 +199,14 @@ class Decode extends Component {
         autoComplete="off"
       >
         <input autoComplete="off" style={{ display: "none" }}></input>
-        {this.state.messageBarMessage && (
+        {(this.state as any).messageBarMessage && (
           <MessageBar messageBarType={MessageBarType.error}>
-            {this.state.messageBarMessage}
+            {(this.state as any).messageBarMessage}
           </MessageBar>
         )}
-        {this.state.selectedImage ? (
+        {(this.state as any).selectedImage ? (
           <img
-            src={this.state.selectedImage}
+            src={(this.state as any).selectedImage}
             alt="plain input to be decoded"
             className="Decode-photo"
           />
@@ -220,30 +221,30 @@ class Decode extends Component {
         )}
         <DefaultButton
           onClick={this.uploadPhoto}
-          disabled={this.state.isLoading}
+          disabled={(this.state as any).isLoading}
           id="uploadPhotoButton"
         >
-          {this.state.selectedImage ? "Change" : "Upload"} Photo
+          {(this.state as any).selectedImage ? "Change" : "Upload"} Photo
         </DefaultButton>
         <TextField
-          disabled={this.state.isLoading}
+          disabled={(this.state as any).isLoading}
           placeholder="Optional Password"
           name="password"
           type="password"
-          value={this.state.password}
+          value={(this.state as any).password}
           onChange={this.onInputChange}
         ></TextField>
-        <PrimaryButton type="submit" disabled={this.state.isLoading}>
-          {this.state.isLoading ? (
+        <PrimaryButton type="submit" disabled={(this.state as any).isLoading}>
+          {(this.state as any).isLoading ? (
             <span className="Decode-submitButton">
-              {this.state.requestStatus} <Spinner />
+              {(this.state as any).requestStatus} <Spinner />
             </span>
           ) : (
             "Submit"
           )}
         </PrimaryButton>
 
-        {this.state.isTeachingBubbleVisible && (
+        {(this.state as any).isTeachingBubbleVisible && (
           <TeachingBubble
             target="#uploadPhotoButton"
             hasSmallHeadline={true}
@@ -251,15 +252,20 @@ class Decode extends Component {
             headline="Upload a Photo to decode message."
           ></TeachingBubble>
         )}
-        <Dialog hidden={!this.state.result} onDismiss={this.hideDialog}>
+        <Dialog
+          hidden={!(this.state as any).result}
+          onDismiss={this.hideDialog}
+        >
           <div className="Decode-dialog">
             <Text variant="xLarge">Message Decoded</Text>
             <Text className="Decode-dialogResult">
-              {this.state.result ? this.state.result : ""}
+              {(this.state as any).result ? (this.state as any).result : ""}
             </Text>
             <DefaultButton
               onClick={this.copyToClipboard}
-              text={this.state.copied ? "Copy Again?" : "Copy to clipboard"}
+              text={
+                (this.state as any).copied ? "Copy Again?" : "Copy to clipboard"
+              }
             />
             <DefaultButton onClick={this.hideDialog} text="Close" />
           </div>

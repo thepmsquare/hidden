@@ -1,4 +1,4 @@
-import React, { Component } from "react";
+import { Component } from "react";
 import Hidden from "./Hidden";
 import "./stylesheets/App.css";
 
