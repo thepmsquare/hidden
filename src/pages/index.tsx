@@ -12,11 +12,13 @@ import {
   Toast,
   ToastTitle,
   ToastIntent,
-  tokens,
 } from "@fluentui/react-components";
 import config from "../../config";
 import ThemeToggle from "../components/ThemeToggle";
+import "../stylesheets/index.css";
+
 const isBrowser = typeof window !== "undefined";
+
 export const Head: HeadFC = () => <title>hidden</title>;
 
 const IndexPage: FC<PageProps> = () => {
@@ -41,11 +43,6 @@ const IndexPage: FC<PageProps> = () => {
 
   // state
   const [themeState, changeThemeState] = useState(defaultThemeState);
-  const [selectedImageState, changeSelectedImageState] = useState({
-    selectedImage: "",
-    selectedImageName: "",
-    selectedImageType: "",
-  });
 
   // custom functions
   const customChangeThemeState = (newThemeState: {
@@ -75,9 +72,9 @@ const IndexPage: FC<PageProps> = () => {
       customTypeCheckForFileList(e.target.files)
     ) {
       const indexOfPath = e.target.files[0].name.lastIndexOf(".");
-      const filename = e.target.files[0].name.substr(0, indexOfPath);
+      const filename = e.target.files[0].name.slice(0, indexOfPath);
       const filetype = e.target.files[0].name
-        .substr(indexOfPath + 1)
+        .slice(indexOfPath + 1)
         .toLowerCase();
       if (
         filetype === "png" ||
@@ -100,14 +97,6 @@ const IndexPage: FC<PageProps> = () => {
                 },
               },
             });
-
-            let rootDOM = document.querySelector(":root");
-            if (rootDOM != null && "style" in rootDOM) {
-              rootDOM.setAttribute(
-                "style",
-                `--image-url:url("${event.target.result}")`
-              );
-            }
           } else {
             customDispatchToast(
               "unable to select image, please try again.",
@@ -148,13 +137,7 @@ const IndexPage: FC<PageProps> = () => {
   return (
     <FluentProvider theme={currentTheme}>
       <main className="main">
-        <div
-          className="inside-main"
-          style={{
-            backgroundColor: tokens.colorNeutralBackground1,
-            borderRadius: tokens.borderRadiusMedium,
-          }}
-        >
+        <div className="inside-main">
           <Button appearance="primary" onClick={uploadPhoto} size="large">
             select image
           </Button>

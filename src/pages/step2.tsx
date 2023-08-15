@@ -1,5 +1,5 @@
 import React, { FC, useState } from "react";
-import type { HeadFC, PageProps } from "gatsby";
+import { navigate, type HeadFC, type PageProps } from "gatsby";
 import {
   FluentProvider,
   webDarkTheme,
@@ -12,15 +12,39 @@ import {
   ToastTitle,
   ToastIntent,
   Divider,
-  tokens,
+  Text,
 } from "@fluentui/react-components";
 import config from "../../config";
 import ThemeToggle from "../components/ThemeToggle";
+import "../stylesheets/step2.css";
 
 const isBrowser = typeof window !== "undefined";
 export const Head: HeadFC = () => <title>hidden</title>;
 
-const Step2Page: FC<PageProps> = () => {
+const Step2Page: FC<PageProps> = (props) => {
+  // get state from props
+  interface CustomStateType {
+    selectedImageState: {
+      selectedImage: string;
+      selectedImageName: string;
+      selectedImageType: string;
+    };
+    [key: string]: any;
+  }
+  function isCustomStateType(obj: any): obj is CustomStateType {
+    if (obj !== null) {
+      return "selectedImageState" in obj;
+    } else {
+      return false;
+    }
+  }
+  let selectedImageStateProps;
+  if (isCustomStateType(props.location.state)) {
+    selectedImageStateProps = props.location.state.selectedImageState;
+  } else {
+    navigate("/");
+  }
+
   // get stuff from local storage
   let localStorageTheme;
   if (isBrowser) {
@@ -42,6 +66,10 @@ const Step2Page: FC<PageProps> = () => {
 
   // state
   const [themeState, changeThemeState] = useState(defaultThemeState);
+
+  const [selectedImageState, changeSelectedImageState] = useState(
+    selectedImageStateProps
+  );
 
   // custom functions
   const customChangeThemeState = (newThemeState: {
@@ -72,9 +100,9 @@ const Step2Page: FC<PageProps> = () => {
       customTypeCheckForFileList(e.target.files)
     ) {
       const indexOfPath = e.target.files[0].name.lastIndexOf(".");
-      const filename = e.target.files[0].name.substr(0, indexOfPath);
+      const filename = e.target.files[0].name.slice(0, indexOfPath);
       const filetype = e.target.files[0].name
-        .substr(indexOfPath + 1)
+        .slice(indexOfPath + 1)
         .toLowerCase();
       if (
         filetype === "png" ||
@@ -88,18 +116,11 @@ const Step2Page: FC<PageProps> = () => {
         fReader.readAsDataURL(e.target.files[0]);
         fReader.onloadend = (event) => {
           if (event.target && typeof event.target.result === "string") {
-            console.log({
+            changeSelectedImageState({
               selectedImage: event.target.result,
               selectedImageName: filename,
               selectedImageType: filetype,
             });
-            let rootDOM = document.querySelector(":root");
-            if (rootDOM != null && "style" in rootDOM) {
-              rootDOM.setAttribute(
-                "style",
-                `--image-url:url("${event.target.result}")`
-              );
-            }
           } else {
             customDispatchToast(
               "unable to select image, please try again.",
@@ -137,26 +158,42 @@ const Step2Page: FC<PageProps> = () => {
   }
   return (
     <FluentProvider theme={currentTheme}>
-      <main className="main">
-        <div
-          className="inside-main"
-          style={{
-            backgroundColor: tokens.colorNeutralBackground1,
-            borderRadius: tokens.borderRadiusMedium,
-          }}
-        >
-          <>
-            <div className="button-group-container">
-              <Button appearance="primary">hide text in selected image</Button>
-              <Divider>or</Divider>
-              <Button appearance="primary">
-                get hidden text from selected image
-              </Button>
-            </div>
-            <Button appearance="subtle" onClick={uploadPhoto}>
-              change selected image?
+      <main
+        className="main"
+        style={{
+          backgroundImage: `url("${selectedImageState?.selectedImage}")`,
+        }}
+      >
+        <div className="inside-main">
+          <Text>
+            selected image:{" "}
+            <Text font="monospace">
+              {(selectedImageState?.selectedImageName as "string").length >
+              config.step2FileNameLength.max
+                ? `${
+                    selectedImageState?.selectedImageName.slice(
+                      0,
+                      config.step2FileNameLength.visibleEnds
+                    ) +
+                    "..." +
+                    selectedImageState?.selectedImageName.slice(
+                      -config.step2FileNameLength.visibleEnds
+                    )
+                  }.${selectedImageState?.selectedImageType}`
+                : `${selectedImageState?.selectedImageName}.${selectedImageState?.selectedImageType}`}
+            </Text>
+          </Text>
+
+          <div className="button-group-container">
+            <Button appearance="primary">hide text in selected image</Button>
+            <Divider>or</Divider>
+            <Button appearance="primary">
+              get hidden text from selected image
             </Button>
-          </>
+          </div>
+          <Button appearance="subtle" onClick={uploadPhoto}>
+            change selected image?
+          </Button>
           <ThemeToggle
             themeState={themeState}
             customChangeThemeState={customChangeThemeState}
@@ -166,7 +203,7 @@ const Step2Page: FC<PageProps> = () => {
             position="bottom-start"
             pauseOnHover
             pauseOnWindowBlur
-          />{" "}
+          />
         </div>
       </main>
     </FluentProvider>

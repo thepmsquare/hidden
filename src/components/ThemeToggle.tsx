@@ -14,7 +14,7 @@ import {
   WeatherSunnyRegular,
   WeatherSunnyFilled,
 } from "@fluentui/react-icons";
-import "../stylesheets/index.css";
+
 const WeatherMoonIcon = bundleIcon(WeatherMoonFilled, WeatherMoonRegular);
 const WeatherSunnyIcon = bundleIcon(WeatherSunnyFilled, WeatherSunnyRegular);
 
