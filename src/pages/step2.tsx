@@ -43,6 +43,7 @@ const Step2Page: FC<PageProps> = (props) => {
     selectedImageStateProps = props.location.state.selectedImageState;
   } else {
     navigate("/");
+    return "";
   }
 
   // get stuff from local storage
@@ -149,6 +150,18 @@ const Step2Page: FC<PageProps> = (props) => {
     inputDOM.addEventListener("change", getSelectedImage);
     inputDOM.click();
   };
+
+  const navigateToEncode = async () => {
+    if (selectedImageState) {
+      await navigate("/encode/", {
+        state: {
+          selectedImageState,
+        },
+      });
+    } else {
+      customDispatchToast("Unexpected error.", "error");
+    }
+  };
   // misc
   let currentTheme;
   if (themeState.theme[0] === "dark") {
@@ -168,7 +181,7 @@ const Step2Page: FC<PageProps> = (props) => {
           <Text>
             selected image:{" "}
             <Text font="monospace">
-              {(selectedImageState?.selectedImageName as "string").length >
+              {(selectedImageState?.selectedImageName as "string")?.length >
               config.step2FileNameLength.max
                 ? `${
                     selectedImageState?.selectedImageName.slice(
@@ -185,7 +198,9 @@ const Step2Page: FC<PageProps> = (props) => {
           </Text>
 
           <div className="button-group-container">
-            <Button appearance="primary">hide text in selected image</Button>
+            <Button appearance="primary" onClick={navigateToEncode}>
+              hide text in selected image
+            </Button>
             <Divider>or</Divider>
             <Button appearance="primary">
               get hidden text from selected image
