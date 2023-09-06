@@ -18,7 +18,6 @@ import {
 import config from "../../config";
 import ThemeToggle from "../components/ThemeToggle";
 import "../stylesheets/encode.css";
-const gstrMessageAppendedAtEnd = "10";
 const isBrowser = typeof window !== "undefined";
 export const Head: HeadFC = () => <title>encode | hidden</title>;
 
@@ -211,7 +210,7 @@ const EncodePage: FC<PageProps> = (props) => {
   ) => {
     let newPixels = newImageData.data;
     let oldPixels = oldImageData.data;
-    let finalEncodedMessage = encodedMessage + gstrMessageAppendedAtEnd;
+    let finalEncodedMessage = encodedMessage + config.messageAppendedAtEnd;
     let msgLength = finalEncodedMessage.length;
     let maxLength = imageWidth * imageHeight * 3 * 2;
     if (msgLength > maxLength) {
