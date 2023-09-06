@@ -17,6 +17,7 @@
   },
   "dependencies": {
     "@fluentui/react-components": "^9.28.1",
+    "crypto-js": "^4.1.1",
     "gatsby": "^5.11.0",
     "gatsby-plugin-image": "^3.11.0",
     "gatsby-plugin-manifest": "^5.11.0",

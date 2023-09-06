@@ -15,6 +15,7 @@ import {
   Input,
   Textarea,
 } from "@fluentui/react-components";
+import CryptoJS from "crypto-js";
 import config from "../../config";
 import ThemeToggle from "../components/ThemeToggle";
 import "../stylesheets/encode.css";
@@ -275,7 +276,15 @@ const EncodePage: FC<PageProps> = (props) => {
         throw Error("unexpected error.");
       }
       ctx.drawImage(image, 0, 0);
-      let encodedMessage = convertMessageToBinary(message);
+      let encodedMessage;
+      if (password) {
+        encodedMessage = convertMessageToBinary(
+          CryptoJS.AES.encrypt(message, password).toString()
+        );
+      } else {
+        encodedMessage = convertMessageToBinary(message);
+      }
+
       const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
       let newImageData = new ImageData(canvas.width, canvas.height);
 
