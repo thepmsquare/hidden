@@ -13,7 +13,6 @@ import {
   ToastIntent,
   Text,
   Input,
-  Textarea,
 } from "@fluentui/react-components";
 import CryptoJS from "crypto-js";
 import config from "../../config";
@@ -149,98 +148,87 @@ const DecodePage: FC<PageProps> = (props) => {
   const get2nBits = (
     number: number,
     imageData: ImageData,
-    canvas: HTMLCanvasElement
+    pixelData: [number, number]
   ) => {
+    // pixelData = [pixelNumber, channel]
     let result = "";
-    let pixelNumber = [0, 0, 0];
-
     for (let i = 0; i < number; i++) {
-      const pixel = imageData.data.slice(
-        (pixelNumber[1] * canvas.width + pixelNumber[0]) * 4
-      ); // 4 channels (RGBA) per pixel
-
-      const value = ((pixel[pixelNumber[2]] >> 6) & 0x03)
-        .toString(2)
-        .padStart(2, "0");
-      result += value;
-
-      // Move to the next pixel or channel
-      if (pixelNumber[2] === 2) {
-        if (pixelNumber[0] < canvas.width - 1) {
-          pixelNumber[0]++;
-        } else {
-          pixelNumber[0] = 0;
-          pixelNumber[1]++;
-        }
-        pixelNumber[2] = 0;
+      result =
+        result +
+        imageData.data[pixelData[0] * 4 + pixelData[1]]
+          .toString(2)
+          .padStart(8, "0")
+          .slice(6);
+      if (pixelData[1] === 2) {
+        pixelData[1] = 0;
+        pixelData[0] = pixelData[0] + 1;
       } else {
-        pixelNumber[2]++;
+        pixelData[1] = pixelData[1] + 1;
       }
     }
-
     return result;
   };
 
-  const getBinaryData = (imageData: ImageData, canvas: HTMLCanvasElement) => {
+  const getBinaryData = (imageData: ImageData) => {
     const binaryData = [];
-
+    let pixelData: [number, number] = [0, 0];
     while (true) {
-      let currentChr = get2nBits(1, imageData, canvas); // Use the get2nBits function defined earlier.
+      let currentChr = get2nBits(1, imageData, pixelData); // Use the get2nBits function defined earlier.
 
       if (currentChr.charAt(0) === "0") {
-        binaryData.push(currentChr + get2nBits(3, imageData, canvas)); // Append 3 more bits.
+        binaryData.push(currentChr + get2nBits(3, imageData, pixelData)); // Append 3 more bits.
       } else {
         if (currentChr === config.messageAppendedAtEnd) {
           break; // End marker found, exit the loop.
         } else {
-          currentChr += get2nBits(1, imageData, canvas);
+          currentChr += get2nBits(1, imageData, pixelData);
 
           if (currentChr.substring(0, 3) === "110") {
             let appendThis =
-              currentChr.substring(3) + get2nBits(2, imageData, canvas);
-            if (get2nBits(1, imageData, canvas) !== "10") {
+              currentChr.substring(3) + get2nBits(2, imageData, pixelData);
+            if (get2nBits(1, imageData, pixelData) !== "10") {
               throw new Error(
                 "Input image doesn't appear to have any encoded message."
               );
             }
-            appendThis += get2nBits(3, imageData, canvas);
+            appendThis += get2nBits(3, imageData, pixelData);
             binaryData.push(appendThis);
           } else if (currentChr === "1110") {
-            let appendThis = get2nBits(2, imageData, canvas);
-            if (get2nBits(1, imageData, canvas) !== "10") {
+            let appendThis = get2nBits(2, imageData, pixelData);
+            if (get2nBits(1, imageData, pixelData) !== "10") {
               throw new Error(
                 "Input image doesn't appear to have any encoded message."
               );
             }
-            appendThis += get2nBits(3, imageData, canvas);
-            if (get2nBits(1, imageData, canvas) !== "10") {
+            appendThis += get2nBits(3, imageData, pixelData);
+            if (get2nBits(1, imageData, pixelData) !== "10") {
               throw new Error(
                 "Input image doesn't appear to have any encoded message."
               );
             }
-            appendThis += get2nBits(3, imageData, canvas);
+            appendThis += get2nBits(3, imageData, pixelData);
             binaryData.push(appendThis);
           } else if (currentChr.substring(0, 5) === "11110") {
             let appendThis =
-              currentChr.substring(5) + get2nBits(1, imageData, canvas);
-            if (get2nBits(1, imageData, canvas) !== "10") {
+              currentChr.substring(5) + get2nBits(1, imageData, pixelData);
+            if (get2nBits(1, imageData, pixelData) !== "10") {
               throw new Error(
                 "Input image doesn't appear to have any encoded message."
               );
             }
-            appendThis += get2nBits(3, imageData, canvas);
-            if (get2nBits(1, imageData, canvas) !== "10") {
+            appendThis += get2nBits(3, imageData, pixelData);
+            if (get2nBits(1, imageData, pixelData) !== "10") {
               throw new Error(
                 "Input image doesn't appear to have any encoded message."
               );
             }
-            appendThis += get2nBits(3, imageData, canvas);
-            if (get2nBits(1, imageData, canvas) !== "10") {
+            appendThis += get2nBits(3, imageData, pixelData);
+            if (get2nBits(1, imageData, pixelData) !== "10") {
               throw new Error(
                 "Input image doesn't appear to have any encoded message."
               );
             }
-            appendThis += get2nBits(3, imageData, canvas);
+            appendThis += get2nBits(3, imageData, pixelData);
             binaryData.push(appendThis);
           } else {
             throw new Error(
@@ -269,7 +257,31 @@ const DecodePage: FC<PageProps> = (props) => {
       ctx.drawImage(image, 0, 0);
 
       const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-      console.log(getBinaryData(imageData, canvas));
+      let binaryData = getBinaryData(imageData);
+      let decodedString = binaryData
+        .map((x) => String.fromCharCode(parseInt(x, 2)))
+        .join("");
+      let finalMessage;
+      if (password) {
+        try {
+          let bytes = CryptoJS.AES.decrypt(decodedString, password);
+          finalMessage = bytes.toString(CryptoJS.enc.Utf8);
+        } catch (error) {
+          throw new Error("Wrong Password.");
+        }
+        if (finalMessage === "") {
+          throw new Error("Wrong Password.");
+        }
+      } else {
+        finalMessage = decodedString;
+        if (finalMessage === "") {
+          throw new Error(
+            "Input image doesn't appear to have any encoded message."
+          );
+        }
+      }
+
+      console.log(finalMessage);
     } catch (error: any) {
       customDispatchToast(error.message, "error");
     }
