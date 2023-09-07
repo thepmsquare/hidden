@@ -5,6 +5,13 @@
   "version": "0.2.0",
   "configurations": [
     {
+      "type": "msedge",
+      "request": "launch",
+      "name": "edge",
+      "url": "http://localhost:8000",
+      "webRoot": "${workspaceFolder}"
+    },
+    {
       "type": "firefox",
       "request": "launch",
       "name": "debug",
