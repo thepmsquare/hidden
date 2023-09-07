@@ -1,4 +1,4 @@
-import React, { FC, useState } from "react";
+import React, { FC, FormEvent, useState } from "react";
 import { navigate, type HeadFC, type PageProps } from "gatsby";
 import {
   FluentProvider,
@@ -11,17 +11,18 @@ import {
   Toast,
   ToastTitle,
   ToastIntent,
-  Divider,
   Text,
+  Input,
+  Textarea,
 } from "@fluentui/react-components";
+import CryptoJS from "crypto-js";
 import config from "../../config";
 import ThemeToggle from "../components/ThemeToggle";
-import "../stylesheets/step2.css";
-
+import "../stylesheets/decode.css";
 const isBrowser = typeof window !== "undefined";
-export const Head: HeadFC = () => <title>hidden</title>;
+export const Head: HeadFC = () => <title>decode | hidden</title>;
 
-const Step2Page: FC<PageProps> = (props) => {
+const DecodePage: FC<PageProps> = (props) => {
   // get state from props
   interface CustomStateType {
     selectedImageState: {
@@ -39,6 +40,7 @@ const Step2Page: FC<PageProps> = (props) => {
     }
   }
   let selectedImageStateProps;
+
   if (isCustomStateType(props.location.state)) {
     selectedImageStateProps = props.location.state.selectedImageState;
   } else {
@@ -67,10 +69,10 @@ const Step2Page: FC<PageProps> = (props) => {
 
   // state
   const [themeState, changeThemeState] = useState(defaultThemeState);
-
   const [selectedImageState, changeSelectedImageState] = useState(
     selectedImageStateProps
   );
+  const [password, changePassword] = useState("");
 
   // custom functions
   const customChangeThemeState = (newThemeState: {
@@ -105,14 +107,7 @@ const Step2Page: FC<PageProps> = (props) => {
       const filetype = e.target.files[0].name
         .slice(indexOfPath + 1)
         .toLowerCase();
-      if (
-        filetype === "png" ||
-        filetype === "jpg" ||
-        filetype === "jpeg" ||
-        filetype === "jfif" ||
-        filetype === "pjpeg" ||
-        filetype === "pjp"
-      ) {
+      if (filetype === "png") {
         const fReader = new FileReader();
         fReader.readAsDataURL(e.target.files[0]);
         fReader.onloadend = (event) => {
@@ -131,13 +126,13 @@ const Step2Page: FC<PageProps> = (props) => {
         };
       } else {
         customDispatchToast(
-          "unsupported image format. currently supported formats: image/jpeg, image/png.",
+          "unsupported image format. currently supported formats: image/png.",
           "error"
         );
       }
     } else {
       customDispatchToast(
-        "unsupported image format. currently supported formats: image/jpeg, image/png.",
+        "unsupported image format. currently supported formats: image/png.",
         "error"
       );
     }
@@ -146,35 +141,139 @@ const Step2Page: FC<PageProps> = (props) => {
   const uploadPhoto = () => {
     let inputDOM = document.createElement("input");
     inputDOM.setAttribute("type", "file");
-    inputDOM.setAttribute("accept", "image/png,image/jpeg");
+    inputDOM.setAttribute("accept", "image/png");
     inputDOM.addEventListener("change", getSelectedImage);
     inputDOM.click();
   };
 
-  const navigateToEncode = async () => {
-    if (selectedImageState) {
-      await navigate("/encode/", {
-        state: {
-          selectedImageState,
-        },
-      });
-    } else {
-      customDispatchToast("Unexpected error.", "error");
+  const get2nBits = (
+    number: number,
+    imageData: ImageData,
+    canvas: HTMLCanvasElement
+  ) => {
+    let result = "";
+    let pixelNumber = [0, 0, 0];
+
+    for (let i = 0; i < number; i++) {
+      const pixel = imageData.data.slice(
+        (pixelNumber[1] * canvas.width + pixelNumber[0]) * 4
+      ); // 4 channels (RGBA) per pixel
+
+      const value = ((pixel[pixelNumber[2]] >> 6) & 0x03)
+        .toString(2)
+        .padStart(2, "0");
+      result += value;
+
+      // Move to the next pixel or channel
+      if (pixelNumber[2] === 2) {
+        if (pixelNumber[0] < canvas.width - 1) {
+          pixelNumber[0]++;
+        } else {
+          pixelNumber[0] = 0;
+          pixelNumber[1]++;
+        }
+        pixelNumber[2] = 0;
+      } else {
+        pixelNumber[2]++;
+      }
     }
+
+    return result;
   };
 
-  const navigateToDecode = async () => {
-    if (selectedImageState) {
-      await navigate("/decode/", {
-        state: {
-          selectedImageState,
-        },
-      });
-    } else {
-      customDispatchToast("Unexpected error.", "error");
+  const getBinaryData = (imageData: ImageData, canvas: HTMLCanvasElement) => {
+    const binaryData = [];
+
+    while (true) {
+      let currentChr = get2nBits(1, imageData, canvas); // Use the get2nBits function defined earlier.
+
+      if (currentChr.charAt(0) === "0") {
+        binaryData.push(currentChr + get2nBits(3, imageData, canvas)); // Append 3 more bits.
+      } else {
+        if (currentChr === config.messageAppendedAtEnd) {
+          break; // End marker found, exit the loop.
+        } else {
+          currentChr += get2nBits(1, imageData, canvas);
+
+          if (currentChr.substring(0, 3) === "110") {
+            let appendThis =
+              currentChr.substring(3) + get2nBits(2, imageData, canvas);
+            if (get2nBits(1, imageData, canvas) !== "10") {
+              throw new Error(
+                "Input image doesn't appear to have any encoded message."
+              );
+            }
+            appendThis += get2nBits(3, imageData, canvas);
+            binaryData.push(appendThis);
+          } else if (currentChr === "1110") {
+            let appendThis = get2nBits(2, imageData, canvas);
+            if (get2nBits(1, imageData, canvas) !== "10") {
+              throw new Error(
+                "Input image doesn't appear to have any encoded message."
+              );
+            }
+            appendThis += get2nBits(3, imageData, canvas);
+            if (get2nBits(1, imageData, canvas) !== "10") {
+              throw new Error(
+                "Input image doesn't appear to have any encoded message."
+              );
+            }
+            appendThis += get2nBits(3, imageData, canvas);
+            binaryData.push(appendThis);
+          } else if (currentChr.substring(0, 5) === "11110") {
+            let appendThis =
+              currentChr.substring(5) + get2nBits(1, imageData, canvas);
+            if (get2nBits(1, imageData, canvas) !== "10") {
+              throw new Error(
+                "Input image doesn't appear to have any encoded message."
+              );
+            }
+            appendThis += get2nBits(3, imageData, canvas);
+            if (get2nBits(1, imageData, canvas) !== "10") {
+              throw new Error(
+                "Input image doesn't appear to have any encoded message."
+              );
+            }
+            appendThis += get2nBits(3, imageData, canvas);
+            if (get2nBits(1, imageData, canvas) !== "10") {
+              throw new Error(
+                "Input image doesn't appear to have any encoded message."
+              );
+            }
+            appendThis += get2nBits(3, imageData, canvas);
+            binaryData.push(appendThis);
+          } else {
+            throw new Error(
+              "Input image doesn't appear to have any encoded message."
+            );
+          }
+        }
+      }
     }
+
+    return binaryData;
   };
 
+  const handleFormSubmit = (e: FormEvent) => {
+    e.preventDefault();
+    try {
+      const image = new Image();
+      image.src = selectedImageState.selectedImage;
+      const canvas = document.createElement("canvas");
+      canvas.width = image.width;
+      canvas.height = image.height;
+      const ctx = canvas.getContext("2d", { colorSpace: "srgb" });
+      if (ctx === null) {
+        throw Error("unexpected error.");
+      }
+      ctx.drawImage(image, 0, 0);
+
+      const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+      console.log(getBinaryData(imageData, canvas));
+    } catch (error: any) {
+      customDispatchToast(error.message, "error");
+    }
+  };
   // misc
   let currentTheme;
   if (themeState.theme[0] === "dark") {
@@ -209,20 +308,18 @@ const Step2Page: FC<PageProps> = (props) => {
                 : `${selectedImageState?.selectedImageName}.${selectedImageState?.selectedImageType}`}
             </Text>
           </Text>
+          <form className="decode-form" onSubmit={handleFormSubmit}>
+            <Input
+              type="password"
+              value={password}
+              onChange={(_, data) => changePassword(data.value)}
+              placeholder="optional password"
+            ></Input>
+            <Button appearance="primary" type="submit">
+              submit
+            </Button>
+          </form>
 
-          <div className="button-group-container">
-            <Button appearance="primary" onClick={navigateToEncode}>
-              hide text in selected image
-            </Button>
-            <Divider>or</Divider>
-            <Button
-              appearance="primary"
-              onClick={navigateToDecode}
-              disabled={selectedImageState.selectedImageType !== "png"}
-            >
-              get hidden text from selected image
-            </Button>
-          </div>
           <Button appearance="subtle" onClick={uploadPhoto}>
             change selected image?
           </Button>
@@ -241,4 +338,4 @@ const Step2Page: FC<PageProps> = (props) => {
     </FluentProvider>
   );
 };
-export default Step2Page;
+export default DecodePage;
