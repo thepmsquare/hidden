@@ -214,7 +214,12 @@ const Step2Page: FC<PageProps> = (props) => {
             <Button appearance="primary" onClick={navigateToEncode}>
               hide text in selected image
             </Button>
-            <Divider>or</Divider>
+            <Divider appearance="subtle" vertical className="divider-vertical">
+              or
+            </Divider>
+            <Divider appearance="subtle" className="divider-horizontal">
+              or
+            </Divider>
             <Button
               appearance="primary"
               onClick={navigateToDecode}
