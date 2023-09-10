@@ -286,6 +286,13 @@ const DecodePage: FC<PageProps> = (props) => {
       customDispatchToast(error.message, "error");
     }
   };
+  const navigateToStep2 = async () => {
+    await navigate("/step2/", {
+      state: {
+        selectedImageState,
+      },
+    });
+  };
   // misc
   let currentTheme;
   if (themeState.theme[0] === "dark") {
@@ -339,6 +346,9 @@ const DecodePage: FC<PageProps> = (props) => {
             themeState={themeState}
             customChangeThemeState={customChangeThemeState}
           />
+          <Button appearance="subtle" onClick={navigateToStep2}>
+            go back
+          </Button>
           <Toaster
             toasterId={toasterId}
             position="bottom-start"
