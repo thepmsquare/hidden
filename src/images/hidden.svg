@@ -3,7 +3,7 @@
   <defs>
     <style>
       .cls-1 {
-        fill: aqua;
+        fill: cyan;
       }
 
       .cls-2 {
@@ -12,7 +12,7 @@
     </style>
   </defs>
   <g>
-    <rect x=".5" y=".5" width="511" height="511" />
+    <rect x=".5" y=".5" width="512" height="512" />
     <path d="m511,1v510H1V1h510m1-1H0v512h512V0h0Z" />
   </g>
   <path class="cls-1"
@@ -20,5 +20,5 @@
   <rect x="262" y="-2" width="42" height="450" transform="translate(-74.8 265.43) rotate(-45)" />
   <circle class="cls-1" cx="256" cy="256" r="40" />
   <rect class="cls-2" x="235" y="31" width="42" height="450" rx="10" ry="10"
-    transform="translate(-106.04 256) rotate(-45)" />
+    transform="translate(-104 256) rotate(-45)" />
 </svg>
