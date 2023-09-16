@@ -3,6 +3,7 @@ import { navigate, type HeadFC, type PageProps } from "gatsby";
 import { Button, Typography, Card } from "@mui/material";
 import { ThemeProvider, createTheme } from "@mui/material/styles";
 import config from "../../config";
+import "../stylesheets/common.css";
 import "../stylesheets/encode_share.css";
 
 const isBrowser = typeof window !== "undefined";

@@ -7,6 +7,7 @@ import ThemeToggle from "../components/ThemeToggle";
 import CustomSnackbar from "../components/CustomSnackbar";
 import type CustomSnackbarStateType from "../types/CustomSnackbarStateType";
 import "../stylesheets/step2.css";
+import "../stylesheets/common.css";
 import getSelectedImage from "../utils/getSelectedImage";
 import "@fontsource/roboto/300.css";
 import "@fontsource/roboto/400.css";

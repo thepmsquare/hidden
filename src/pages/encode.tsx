@@ -8,6 +8,7 @@ import ThemeToggle from "../components/ThemeToggle";
 import CustomSnackbar from "../components/CustomSnackbar";
 import type CustomSnackbarStateType from "../types/CustomSnackbarStateType";
 import "../stylesheets/encode.css";
+import "../stylesheets/common.css";
 import getSelectedImage from "../utils/getSelectedImage";
 import "@fontsource/roboto/300.css";
 import "@fontsource/roboto/400.css";
@@ -307,7 +308,7 @@ const EncodePage: FC<PageProps> = (props) => {
                 : `${selectedImageState.selectedImageName}.${selectedImageState.selectedImageType}`}
             </code>
           </Typography>
-          <form className="encode-form" onSubmit={handleFormSubmit}>
+          <form className="form" onSubmit={handleFormSubmit}>
             <TextField
               placeholder="enter text to hide in selected image"
               value={message}

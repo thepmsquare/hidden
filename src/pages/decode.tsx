@@ -8,6 +8,7 @@ import ThemeToggle from "../components/ThemeToggle";
 import CustomSnackbar from "../components/CustomSnackbar";
 import type CustomSnackbarStateType from "../types/CustomSnackbarStateType";
 import "../stylesheets/decode.css";
+import "../stylesheets/common.css";
 import getSelectedImage from "../utils/getSelectedImage";
 import "@fontsource/roboto/300.css";
 import "@fontsource/roboto/400.css";
@@ -292,7 +293,7 @@ const DecodePage: FC<PageProps> = (props) => {
                 : `${selectedImageState.selectedImageName}.${selectedImageState.selectedImageType}`}
             </code>
           </Typography>
-          <form className="decode-form" onSubmit={handleFormSubmit}>
+          <form className="form" onSubmit={handleFormSubmit}>
             <TextField
               type="password"
               value={password}

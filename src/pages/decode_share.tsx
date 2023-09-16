@@ -4,6 +4,7 @@ import { Button, Typography } from "@mui/material";
 import { ThemeProvider, createTheme } from "@mui/material/styles";
 import config from "../../config";
 import "../stylesheets/decode_share.css";
+import "../stylesheets/common.css";
 
 const isBrowser = typeof window !== "undefined";
 

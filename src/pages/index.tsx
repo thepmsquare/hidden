@@ -96,7 +96,7 @@ const IndexPage: FC<PageProps> = () => {
   return (
     <ThemeProvider theme={currentTheme}>
       <Card className="main" square>
-        <div className="index-card">
+        <div className="inside-main">
           <Button
             onClick={uploadPhoto}
             variant="contained"
