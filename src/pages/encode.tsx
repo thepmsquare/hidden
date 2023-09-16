@@ -290,8 +290,10 @@ const EncodePage: FC<PageProps> = (props) => {
         <Card className="inside-main">
           <Typography>
             selected image:{" "}
-            <code
+            <Typography
               title={`${selectedImageState.selectedImageName}.${selectedImageState?.selectedImageType}`}
+              color="primary"
+              variant="button"
             >
               {selectedImageState.selectedImageName.length >
               config.step2FileNameLength.max
@@ -306,7 +308,7 @@ const EncodePage: FC<PageProps> = (props) => {
                     )
                   }.${selectedImageState.selectedImageType}`
                 : `${selectedImageState.selectedImageName}.${selectedImageState.selectedImageType}`}
-            </code>
+            </Typography>
           </Typography>
           <form className="form" onSubmit={handleFormSubmit}>
             <TextField
@@ -328,7 +330,7 @@ const EncodePage: FC<PageProps> = (props) => {
             </Button>
           </form>
           <Button onClick={uploadPhoto} variant="outlined">
-            change selected image?
+            change selected image
           </Button>
           <ThemeToggle
             themeState={themeState}

@@ -152,8 +152,10 @@ const Step2Page: FC<PageProps> = (props) => {
         <Card className="inside-main">
           <Typography align="center">
             selected image:{" "}
-            <code
+            <Typography
               title={`${selectedImageState.selectedImageName}.${selectedImageState?.selectedImageType}`}
+              color="primary"
+              variant="button"
             >
               {selectedImageState.selectedImageName.length >
               config.step2FileNameLength.max
@@ -168,7 +170,7 @@ const Step2Page: FC<PageProps> = (props) => {
                     )
                   }.${selectedImageState.selectedImageType}`
                 : `${selectedImageState.selectedImageName}.${selectedImageState.selectedImageType}`}
-            </code>
+            </Typography>
           </Typography>
 
           <div className="button-group-container">
@@ -191,7 +193,7 @@ const Step2Page: FC<PageProps> = (props) => {
             </Button>
           </div>
           <Button onClick={uploadPhoto} variant="outlined">
-            change selected image?
+            change selected image
           </Button>
           <ThemeToggle
             themeState={themeState}

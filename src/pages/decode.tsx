@@ -1,6 +1,6 @@
 import React, { FC, FormEvent, useState } from "react";
 import { navigate, type HeadFC, type PageProps } from "gatsby";
-import { Button, Typography, TextField } from "@mui/material";
+import { Button, Typography, TextField, Card } from "@mui/material";
 import { ThemeProvider, createTheme } from "@mui/material/styles";
 import CryptoJS from "crypto-js";
 import config from "../../config";
@@ -272,11 +272,13 @@ const DecodePage: FC<PageProps> = (props) => {
           backgroundImage: `url("${selectedImageState?.selectedImage}")`,
         }}
       >
-        <div className="inside-main">
+        <Card className="inside-main">
           <Typography>
             selected image:{" "}
-            <code
+            <Typography
               title={`${selectedImageState.selectedImageName}.${selectedImageState?.selectedImageType}`}
+              color="primary"
+              variant="button"
             >
               {selectedImageState.selectedImageName.length >
               config.step2FileNameLength.max
@@ -291,7 +293,7 @@ const DecodePage: FC<PageProps> = (props) => {
                     )
                   }.${selectedImageState.selectedImageType}`
                 : `${selectedImageState.selectedImageName}.${selectedImageState.selectedImageType}`}
-            </code>
+            </Typography>
           </Typography>
           <form className="form" onSubmit={handleFormSubmit}>
             <TextField
@@ -300,16 +302,27 @@ const DecodePage: FC<PageProps> = (props) => {
               onChange={(e) => changePassword(e.target.value)}
               placeholder="optional password"
             ></TextField>
-            <Button type="submit">submit</Button>
+            <Button
+              type="submit"
+              color="primary"
+              variant="contained"
+              size="large"
+            >
+              submit
+            </Button>
           </form>
 
-          <Button onClick={uploadPhoto}>change selected image?</Button>
+          <Button onClick={uploadPhoto} variant="outlined">
+            change selected image
+          </Button>
           <ThemeToggle
             themeState={themeState}
             customChangeThemeState={customChangeThemeState}
           />
-          <Button onClick={navigateToStep2}>go back</Button>
-        </div>
+          <Button onClick={navigateToStep2} variant="outlined" size="small">
+            go back
+          </Button>
+        </Card>
         <CustomSnackbar
           snackbarState={snackbarState}
           changeSnackbarState={changeSnackbarState}
