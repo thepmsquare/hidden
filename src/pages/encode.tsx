@@ -1,25 +1,21 @@
 import React, { FC, FormEvent, useState } from "react";
 import { navigate, type HeadFC, type PageProps } from "gatsby";
-import {
-  FluentProvider,
-  webDarkTheme,
-  webLightTheme,
-  Button,
-  useId,
-  Toaster,
-  useToastController,
-  Toast,
-  ToastTitle,
-  ToastIntent,
-  Text,
-  Input,
-  Textarea,
-} from "@fluentui/react-components";
+import { Button, Typography, TextField, Card } from "@mui/material";
+import { ThemeProvider, createTheme } from "@mui/material/styles";
 import CryptoJS from "crypto-js";
 import config from "../../config";
 import ThemeToggle from "../components/ThemeToggle";
+import CustomSnackbar from "../components/CustomSnackbar";
+import type CustomSnackbarStateType from "../types/CustomSnackbarStateType";
 import "../stylesheets/encode.css";
+import getSelectedImage from "../utils/getSelectedImage";
+import "@fontsource/roboto/300.css";
+import "@fontsource/roboto/400.css";
+import "@fontsource/roboto/500.css";
+import "@fontsource/roboto/700.css";
+
 const isBrowser = typeof window !== "undefined";
+
 export const Head: HeadFC = () => <title>encode | hidden</title>;
 
 const EncodePage: FC<PageProps> = (props) => {
@@ -40,7 +36,6 @@ const EncodePage: FC<PageProps> = (props) => {
     }
   }
   let selectedImageStateProps;
-
   if (isCustomStateType(props.location.state)) {
     selectedImageStateProps = props.location.state.selectedImageState;
   } else {
@@ -55,94 +50,35 @@ const EncodePage: FC<PageProps> = (props) => {
   } else {
     localStorageTheme = null;
   }
-  let defaultThemeState: { theme: ["dark" | "light"] };
+  let defaultThemeState: "dark" | "light";
   if (localStorageTheme !== null) {
-    defaultThemeState = {
-      theme: [localStorageTheme === "dark" ? "dark" : "light"],
-    };
+    defaultThemeState = localStorageTheme === "dark" ? "dark" : "light";
   } else {
     defaultThemeState = config.defaultThemeState;
     if (isBrowser) {
-      window.localStorage.setItem("theme", config.defaultThemeState.theme[0]);
+      window.localStorage.setItem("theme", config.defaultThemeState);
     }
   }
 
   // state
   const [themeState, changeThemeState] = useState(defaultThemeState);
+  const [snackbarState, changeSnackbarState] =
+    useState<CustomSnackbarStateType>({
+      isOpen: false,
+      message: "",
+      severity: "error",
+    });
   const [selectedImageState, changeSelectedImageState] = useState(
     selectedImageStateProps
   );
   const [message, changeMessage] = useState("");
   const [password, changePassword] = useState("");
 
-  // custom functions
-  const customChangeThemeState = (newThemeState: {
-    theme: ["dark" | "light"];
-  }) => {
+  // functions
+  const customChangeThemeState = (newThemeState: "dark" | "light") => {
     changeThemeState(newThemeState);
     if (isBrowser) {
-      window.localStorage.setItem("theme", newThemeState.theme[0]);
-    }
-  };
-
-  const toasterId = useId("toaster");
-  const { dispatchToast } = useToastController(toasterId);
-  const customDispatchToast = (message: string, intent: ToastIntent) => {
-    dispatchToast(
-      <Toast>
-        <ToastTitle>{message}</ToastTitle>
-      </Toast>,
-      { intent: intent }
-    );
-  };
-
-  const customTypeCheckForFileList = (x: any): x is FileList => x.length === 1;
-  const getSelectedImage = (e: Event) => {
-    if (
-      e.target &&
-      "files" in e.target &&
-      customTypeCheckForFileList(e.target.files)
-    ) {
-      const indexOfPath = e.target.files[0].name.lastIndexOf(".");
-      const filename = e.target.files[0].name.slice(0, indexOfPath);
-      const filetype = e.target.files[0].name
-        .slice(indexOfPath + 1)
-        .toLowerCase();
-      if (
-        filetype === "png" ||
-        filetype === "jpg" ||
-        filetype === "jpeg" ||
-        filetype === "jfif" ||
-        filetype === "pjpeg" ||
-        filetype === "pjp"
-      ) {
-        const fReader = new FileReader();
-        fReader.readAsDataURL(e.target.files[0]);
-        fReader.onloadend = (event) => {
-          if (event.target && typeof event.target.result === "string") {
-            changeSelectedImageState({
-              selectedImage: event.target.result,
-              selectedImageName: filename,
-              selectedImageType: filetype,
-            });
-          } else {
-            customDispatchToast(
-              "unable to select image, please try again.",
-              "error"
-            );
-          }
-        };
-      } else {
-        customDispatchToast(
-          "unsupported image format. currently supported formats: image/jpeg, image/png.",
-          "error"
-        );
-      }
-    } else {
-      customDispatchToast(
-        "unsupported image format. currently supported formats: image/jpeg, image/png.",
-        "error"
-      );
+      window.localStorage.setItem("theme", newThemeState);
     }
   };
 
@@ -150,7 +86,19 @@ const EncodePage: FC<PageProps> = (props) => {
     let inputDOM = document.createElement("input");
     inputDOM.setAttribute("type", "file");
     inputDOM.setAttribute("accept", "image/png,image/jpeg");
-    inputDOM.addEventListener("change", getSelectedImage);
+    inputDOM.addEventListener("change", (e) => {
+      getSelectedImage(
+        e,
+        (selectedImage, selectedImageName, selectedImageType) => {
+          changeSelectedImageState({
+            selectedImage,
+            selectedImageName,
+            selectedImageType,
+          });
+        },
+        changeSnackbarState
+      );
+    });
     inputDOM.click();
   };
 
@@ -263,7 +211,7 @@ const EncodePage: FC<PageProps> = (props) => {
     return newImageData;
   };
 
-  const handleFormSubmit = (e: FormEvent) => {
+  const handleFormSubmit = async (e: FormEvent) => {
     e.preventDefault();
     try {
       const image = new Image();
@@ -297,15 +245,19 @@ const EncodePage: FC<PageProps> = (props) => {
       );
 
       ctx.putImageData(newImageData, 0, 0);
-      const dataURL = canvas.toDataURL("image/png");
-
-      const downloadLink = document.createElement("a");
-      downloadLink.href = dataURL;
-      downloadLink.download = "my_image.png";
-
-      downloadLink.click();
+      const newDataURL = canvas.toDataURL("image/png");
+      await navigate("/encode_share/", {
+        state: {
+          selectedImageState,
+          newDataURL,
+        },
+      });
     } catch (error: any) {
-      customDispatchToast(error.message, "error");
+      changeSnackbarState({
+        isOpen: true,
+        message: error.message,
+        severity: "error",
+      });
     }
   };
 
@@ -318,75 +270,79 @@ const EncodePage: FC<PageProps> = (props) => {
   };
 
   // misc
-  let currentTheme;
-  if (themeState.theme[0] === "dark") {
-    currentTheme = webDarkTheme;
-  } else {
-    currentTheme = webLightTheme;
-  }
+  let currentTheme = createTheme({
+    palette: {
+      mode: themeState,
+    },
+    typography: {
+      fontFamily: config.defaultFont,
+    },
+  });
   return (
-    <FluentProvider theme={currentTheme}>
+    <ThemeProvider theme={currentTheme}>
       <main
         className="main"
         style={{
           backgroundImage: `url("${selectedImageState?.selectedImage}")`,
         }}
       >
-        <div className="inside-main">
-          <Text>
+        <Card className="inside-main">
+          <Typography>
             selected image:{" "}
-            <Text font="monospace">
-              {(selectedImageState?.selectedImageName as "string")?.length >
+            <code
+              title={`${selectedImageState.selectedImageName}.${selectedImageState?.selectedImageType}`}
+            >
+              {selectedImageState.selectedImageName.length >
               config.step2FileNameLength.max
                 ? `${
-                    selectedImageState?.selectedImageName.slice(
+                    selectedImageState.selectedImageName.slice(
                       0,
                       config.step2FileNameLength.visibleEnds
                     ) +
                     "..." +
-                    selectedImageState?.selectedImageName.slice(
+                    selectedImageState.selectedImageName.slice(
                       -config.step2FileNameLength.visibleEnds
                     )
-                  }.${selectedImageState?.selectedImageType}`
-                : `${selectedImageState?.selectedImageName}.${selectedImageState?.selectedImageType}`}
-            </Text>
-          </Text>
+                  }.${selectedImageState.selectedImageType}`
+                : `${selectedImageState.selectedImageName}.${selectedImageState.selectedImageType}`}
+            </code>
+          </Typography>
           <form className="encode-form" onSubmit={handleFormSubmit}>
-            <Textarea
+            <TextField
               placeholder="enter text to hide in selected image"
               value={message}
-              onChange={(_, data) => changeMessage(data.value)}
+              onChange={(e) => changeMessage(e.target.value)}
               required
+              rows={3}
+              multiline
             />
-            <Input
+            <TextField
               type="password"
               value={password}
-              onChange={(_, data) => changePassword(data.value)}
+              onChange={(e) => changePassword(e.target.value)}
               placeholder="optional password"
-            ></Input>
-            <Button appearance="primary" type="submit">
+            />
+            <Button type="submit" size="large" variant="contained">
               submit
             </Button>
           </form>
-          <Button appearance="subtle" onClick={uploadPhoto}>
+          <Button onClick={uploadPhoto} variant="outlined">
             change selected image?
           </Button>
           <ThemeToggle
             themeState={themeState}
             customChangeThemeState={customChangeThemeState}
           />
-          <Button appearance="subtle" onClick={navigateToStep2}>
+          <Button onClick={navigateToStep2} variant="outlined" size="small">
             go back
           </Button>
-          <Toaster
-            toasterId={toasterId}
-            position="bottom-start"
-            pauseOnHover
-            pauseOnWindowBlur
-          />
-        </div>
+        </Card>
+        <CustomSnackbar
+          snackbarState={snackbarState}
+          changeSnackbarState={changeSnackbarState}
+        />
       </main>
-    </FluentProvider>
+    </ThemeProvider>
   );
 };
 export default EncodePage;

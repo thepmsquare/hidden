@@ -1,21 +1,19 @@
 import React, { FC, useState } from "react";
 import { navigate } from "gatsby";
 import type { HeadFC, PageProps } from "gatsby";
-import {
-  FluentProvider,
-  webDarkTheme,
-  webLightTheme,
-  Button,
-  useId,
-  Toaster,
-  useToastController,
-  Toast,
-  ToastTitle,
-  ToastIntent,
-} from "@fluentui/react-components";
+import { Button, Card } from "@mui/material";
+import { ThemeProvider, createTheme } from "@mui/material/styles";
 import config from "../../config";
 import ThemeToggle from "../components/ThemeToggle";
+import CustomSnackbar from "../components/CustomSnackbar";
+import type CustomSnackbarStateType from "../types/CustomSnackbarStateType";
 import "../stylesheets/index.css";
+import "../stylesheets/common.css";
+import getSelectedImage from "../utils/getSelectedImage";
+import "@fontsource/roboto/300.css";
+import "@fontsource/roboto/400.css";
+import "@fontsource/roboto/500.css";
+import "@fontsource/roboto/700.css";
 
 const isBrowser = typeof window !== "undefined";
 
@@ -29,92 +27,31 @@ const IndexPage: FC<PageProps> = () => {
   } else {
     localStorageTheme = null;
   }
-  let defaultThemeState: { theme: ["dark" | "light"] };
+  let defaultThemeState: "dark" | "light";
   if (localStorageTheme !== null) {
-    defaultThemeState = {
-      theme: [localStorageTheme === "dark" ? "dark" : "light"],
-    };
+    defaultThemeState = localStorageTheme === "dark" ? "dark" : "light";
   } else {
     defaultThemeState = config.defaultThemeState;
     if (isBrowser) {
-      window.localStorage.setItem("theme", config.defaultThemeState.theme[0]);
+      window.localStorage.setItem("theme", config.defaultThemeState);
     }
   }
 
   // state
   const [themeState, changeThemeState] = useState(defaultThemeState);
+  const [snackbarState, changeSnackbarState] =
+    useState<CustomSnackbarStateType>({
+      isOpen: false,
+      message: "",
+      severity: "error",
+    });
 
-  // custom functions
-  const customChangeThemeState = (newThemeState: {
-    theme: ["dark" | "light"];
-  }) => {
+  // functions
+
+  const customChangeThemeState = (newThemeState: "dark" | "light") => {
     changeThemeState(newThemeState);
     if (isBrowser) {
-      window.localStorage.setItem("theme", newThemeState.theme[0]);
-    }
-  };
-
-  const toasterId = useId("toaster");
-  const { dispatchToast } = useToastController(toasterId);
-  const customDispatchToast = (message: string, intent: ToastIntent) => {
-    dispatchToast(
-      <Toast>
-        <ToastTitle>{message}</ToastTitle>
-      </Toast>,
-      { intent: intent }
-    );
-  };
-  const customTypeCheckForFileList = (x: any): x is FileList => x.length === 1;
-  const getSelectedImage = (e: Event) => {
-    if (
-      e.target &&
-      "files" in e.target &&
-      customTypeCheckForFileList(e.target.files)
-    ) {
-      const indexOfPath = e.target.files[0].name.lastIndexOf(".");
-      const filename = e.target.files[0].name.slice(0, indexOfPath);
-      const filetype = e.target.files[0].name
-        .slice(indexOfPath + 1)
-        .toLowerCase();
-      if (
-        filetype === "png" ||
-        filetype === "jpg" ||
-        filetype === "jpeg" ||
-        filetype === "jfif" ||
-        filetype === "pjpeg" ||
-        filetype === "pjp"
-      ) {
-        const fReader = new FileReader();
-        fReader.readAsDataURL(e.target.files[0]);
-        fReader.onloadend = async (event) => {
-          if (event.target && typeof event.target.result === "string") {
-            await navigate("/step2/", {
-              state: {
-                selectedImageState: {
-                  selectedImage: event.target.result,
-                  selectedImageName: filename,
-                  selectedImageType: filetype,
-                },
-              },
-            });
-          } else {
-            customDispatchToast(
-              "unable to select image, please try again.",
-              "error"
-            );
-          }
-        };
-      } else {
-        customDispatchToast(
-          "unsupported image format. currently supported formats: image/jpeg, image/png.",
-          "error"
-        );
-      }
-    } else {
-      customDispatchToast(
-        "unsupported image format. currently supported formats: image/jpeg, image/png.",
-        "error"
-      );
+      window.localStorage.setItem("theme", newThemeState);
     }
   };
 
@@ -122,38 +59,63 @@ const IndexPage: FC<PageProps> = () => {
     let inputDOM = document.createElement("input");
     inputDOM.setAttribute("type", "file");
     inputDOM.setAttribute("accept", "image/png,image/jpeg");
-    inputDOM.addEventListener("change", getSelectedImage);
+    inputDOM.addEventListener("change", (e) =>
+      getSelectedImage(
+        e,
+        async (
+          selectedImage: string,
+          selectedImageName: string,
+          selectedImageType: string
+        ) => {
+          await navigate("/step2/", {
+            state: {
+              selectedImageState: {
+                selectedImage,
+                selectedImageName,
+                selectedImageType,
+              },
+            },
+          });
+        },
+        changeSnackbarState
+      )
+    );
     inputDOM.click();
   };
 
   // misc
-  let currentTheme;
-  if (themeState.theme[0] === "dark") {
-    currentTheme = webDarkTheme;
-  } else {
-    currentTheme = webLightTheme;
-  }
+  let currentTheme = createTheme({
+    palette: {
+      mode: themeState,
+    },
+    typography: {
+      fontFamily: config.defaultFont,
+    },
+  });
 
   return (
-    <FluentProvider theme={currentTheme}>
-      <main className="main">
-        <div className="inside-main">
-          <Button appearance="primary" onClick={uploadPhoto} size="large">
-            select image
+    <ThemeProvider theme={currentTheme}>
+      <Card className="main" square>
+        <div className="index-card">
+          <Button
+            onClick={uploadPhoto}
+            variant="contained"
+            size="large"
+            className="index-start-button"
+          >
+            select an image
           </Button>
           <ThemeToggle
             themeState={themeState}
             customChangeThemeState={customChangeThemeState}
           />
-          <Toaster
-            toasterId={toasterId}
-            position="bottom-start"
-            pauseOnHover
-            pauseOnWindowBlur
-          />
         </div>
-      </main>
-    </FluentProvider>
+      </Card>
+      <CustomSnackbar
+        snackbarState={snackbarState}
+        changeSnackbarState={changeSnackbarState}
+      />
+    </ThemeProvider>
   );
 };
 

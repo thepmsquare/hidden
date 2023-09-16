@@ -1,18 +1,42 @@
 import React, { FC, useState } from "react";
-import { type HeadFC, type PageProps } from "gatsby";
-import {
-  FluentProvider,
-  webDarkTheme,
-  webLightTheme,
-  Toaster,
-} from "@fluentui/react-components";
-
+import { navigate, type HeadFC, type PageProps } from "gatsby";
+import { Button, Typography, Card } from "@mui/material";
+import { ThemeProvider, createTheme } from "@mui/material/styles";
 import config from "../../config";
 import "../stylesheets/encode_share.css";
+
 const isBrowser = typeof window !== "undefined";
+
 export const Head: HeadFC = () => <title>encode share | hidden</title>;
 
 const EncodeSharePage: FC<PageProps> = (props) => {
+  // get state from props
+  interface CustomStateType {
+    selectedImageState: {
+      selectedImage: string;
+      selectedImageName: string;
+      selectedImageType: string;
+    };
+    newDataURL: string;
+    [key: string]: any;
+  }
+  function isCustomStateType(obj: any): obj is CustomStateType {
+    if (obj !== null) {
+      return "selectedImageState" in obj;
+    } else {
+      return false;
+    }
+  }
+  let selectedImageStateProps;
+  let newDataURL;
+  if (isCustomStateType(props.location.state)) {
+    selectedImageStateProps = props.location.state.selectedImageState;
+    newDataURL = props.location.state.newDataURL;
+  } else {
+    navigate("/");
+    return "";
+  }
+
   // get stuff from local storage
   let localStorageTheme;
   if (isBrowser) {
@@ -20,15 +44,13 @@ const EncodeSharePage: FC<PageProps> = (props) => {
   } else {
     localStorageTheme = null;
   }
-  let defaultThemeState: { theme: ["dark" | "light"] };
+  let defaultThemeState: "dark" | "light";
   if (localStorageTheme !== null) {
-    defaultThemeState = {
-      theme: [localStorageTheme === "dark" ? "dark" : "light"],
-    };
+    defaultThemeState = localStorageTheme === "dark" ? "dark" : "light";
   } else {
     defaultThemeState = config.defaultThemeState;
     if (isBrowser) {
-      window.localStorage.setItem("theme", config.defaultThemeState.theme[0]);
+      window.localStorage.setItem("theme", config.defaultThemeState);
     }
   }
 
@@ -36,23 +58,36 @@ const EncodeSharePage: FC<PageProps> = (props) => {
   const [themeState, changeThemeState] = useState(defaultThemeState);
 
   // misc
-  let currentTheme;
-  if (themeState.theme[0] === "dark") {
-    currentTheme = webDarkTheme;
-  } else {
-    currentTheme = webLightTheme;
-  }
+  let currentTheme = createTheme({
+    palette: {
+      mode: themeState,
+    },
+    typography: {
+      fontFamily: config.defaultFont,
+    },
+  });
   return (
-    <FluentProvider theme={currentTheme}>
+    <ThemeProvider theme={currentTheme}>
       <main
         className="main"
         style={{
-          backgroundImage: ``,
+          backgroundImage: `url("${newDataURL}")`,
         }}
       >
-        <div className="inside-main">encode_share</div>
+        <Card className="inside-main">
+          <Typography align="justify">
+            your message was hidden successfully. to do this{" "}
+            <Typography variant="button">120</Typography> pixels of the image
+            were modified and around{" "}
+            <Typography variant="button">0.12%</Typography> of the image is
+            slightly different now.
+          </Typography>
+          <Button>download modified image?</Button>
+          <Button>share modified image?</Button>
+          <Button>start over?</Button>
+        </Card>
       </main>
-    </FluentProvider>
+    </ThemeProvider>
   );
 };
 export default EncodeSharePage;

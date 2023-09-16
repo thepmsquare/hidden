@@ -1,24 +1,20 @@
 import React, { FC, useState } from "react";
 import { navigate, type HeadFC, type PageProps } from "gatsby";
-import {
-  FluentProvider,
-  webDarkTheme,
-  webLightTheme,
-  Button,
-  useId,
-  Toaster,
-  useToastController,
-  Toast,
-  ToastTitle,
-  ToastIntent,
-  Divider,
-  Text,
-} from "@fluentui/react-components";
+import { Button, Divider, Typography, Card } from "@mui/material";
+import { ThemeProvider, createTheme } from "@mui/material/styles";
 import config from "../../config";
 import ThemeToggle from "../components/ThemeToggle";
+import CustomSnackbar from "../components/CustomSnackbar";
+import type CustomSnackbarStateType from "../types/CustomSnackbarStateType";
 import "../stylesheets/step2.css";
+import getSelectedImage from "../utils/getSelectedImage";
+import "@fontsource/roboto/300.css";
+import "@fontsource/roboto/400.css";
+import "@fontsource/roboto/500.css";
+import "@fontsource/roboto/700.css";
 
 const isBrowser = typeof window !== "undefined";
+
 export const Head: HeadFC = () => <title>hidden</title>;
 
 const Step2Page: FC<PageProps> = (props) => {
@@ -53,93 +49,33 @@ const Step2Page: FC<PageProps> = (props) => {
   } else {
     localStorageTheme = null;
   }
-  let defaultThemeState: { theme: ["dark" | "light"] };
+  let defaultThemeState: "dark" | "light";
   if (localStorageTheme !== null) {
-    defaultThemeState = {
-      theme: [localStorageTheme === "dark" ? "dark" : "light"],
-    };
+    defaultThemeState = localStorageTheme === "dark" ? "dark" : "light";
   } else {
     defaultThemeState = config.defaultThemeState;
     if (isBrowser) {
-      window.localStorage.setItem("theme", config.defaultThemeState.theme[0]);
+      window.localStorage.setItem("theme", config.defaultThemeState);
     }
   }
 
   // state
   const [themeState, changeThemeState] = useState(defaultThemeState);
-
+  const [snackbarState, changeSnackbarState] =
+    useState<CustomSnackbarStateType>({
+      isOpen: false,
+      message: "",
+      severity: "error",
+    });
   const [selectedImageState, changeSelectedImageState] = useState(
     selectedImageStateProps
   );
 
-  // custom functions
-  const customChangeThemeState = (newThemeState: {
-    theme: ["dark" | "light"];
-  }) => {
+  // functions
+  const customChangeThemeState = (newThemeState: "dark" | "light") => {
     changeThemeState(newThemeState);
     if (isBrowser) {
-      window.localStorage.setItem("theme", newThemeState.theme[0]);
-    }
-  };
-
-  const toasterId = useId("toaster");
-  const { dispatchToast } = useToastController(toasterId);
-  const customDispatchToast = (message: string, intent: ToastIntent) => {
-    dispatchToast(
-      <Toast>
-        <ToastTitle>{message}</ToastTitle>
-      </Toast>,
-      { intent: intent }
-    );
-  };
-
-  const customTypeCheckForFileList = (x: any): x is FileList => x.length === 1;
-  const getSelectedImage = (e: Event) => {
-    if (
-      e.target &&
-      "files" in e.target &&
-      customTypeCheckForFileList(e.target.files)
-    ) {
-      const indexOfPath = e.target.files[0].name.lastIndexOf(".");
-      const filename = e.target.files[0].name.slice(0, indexOfPath);
-      const filetype = e.target.files[0].name
-        .slice(indexOfPath + 1)
-        .toLowerCase();
-      if (
-        filetype === "png" ||
-        filetype === "jpg" ||
-        filetype === "jpeg" ||
-        filetype === "jfif" ||
-        filetype === "pjpeg" ||
-        filetype === "pjp"
-      ) {
-        const fReader = new FileReader();
-        fReader.readAsDataURL(e.target.files[0]);
-        fReader.onloadend = (event) => {
-          if (event.target && typeof event.target.result === "string") {
-            changeSelectedImageState({
-              selectedImage: event.target.result,
-              selectedImageName: filename,
-              selectedImageType: filetype,
-            });
-          } else {
-            customDispatchToast(
-              "unable to select image, please try again.",
-              "error"
-            );
-          }
-        };
-      } else {
-        customDispatchToast(
-          "unsupported image format. currently supported formats: image/jpeg, image/png.",
-          "error"
-        );
-      }
-    } else {
-      customDispatchToast(
-        "unsupported image format. currently supported formats: image/jpeg, image/png.",
-        "error"
-      );
+      window.localStorage.setItem("theme", newThemeState);
     }
   };
 
@@ -147,7 +83,19 @@ const Step2Page: FC<PageProps> = (props) => {
     let inputDOM = document.createElement("input");
     inputDOM.setAttribute("type", "file");
     inputDOM.setAttribute("accept", "image/png,image/jpeg");
-    inputDOM.addEventListener("change", getSelectedImage);
+    inputDOM.addEventListener("change", (e) => {
+      getSelectedImage(
+        e,
+        (selectedImage, selectedImageName, selectedImageType) => {
+          changeSelectedImageState({
+            selectedImage,
+            selectedImageName,
+            selectedImageType,
+          });
+        },
+        changeSnackbarState
+      );
+    });
     inputDOM.click();
   };
 
@@ -159,7 +107,11 @@ const Step2Page: FC<PageProps> = (props) => {
         },
       });
     } else {
-      customDispatchToast("Unexpected error.", "error");
+      changeSnackbarState({
+        isOpen: true,
+        message: "Unexpected error.",
+        severity: "error",
+      });
     }
   };
 
@@ -171,79 +123,86 @@ const Step2Page: FC<PageProps> = (props) => {
         },
       });
     } else {
-      customDispatchToast("Unexpected error.", "error");
+      changeSnackbarState({
+        isOpen: true,
+        message: "Unexpected error.",
+        severity: "error",
+      });
     }
   };
 
   // misc
-  let currentTheme;
-  if (themeState.theme[0] === "dark") {
-    currentTheme = webDarkTheme;
-  } else {
-    currentTheme = webLightTheme;
-  }
+  let currentTheme = createTheme({
+    palette: {
+      mode: themeState,
+    },
+    typography: {
+      fontFamily: config.defaultFont,
+    },
+  });
   return (
-    <FluentProvider theme={currentTheme}>
+    <ThemeProvider theme={currentTheme}>
       <main
         className="main"
         style={{
           backgroundImage: `url("${selectedImageState?.selectedImage}")`,
         }}
       >
-        <div className="inside-main">
-          <Text>
+        <Card className="inside-main">
+          <Typography align="center">
             selected image:{" "}
-            <Text font="monospace">
-              {(selectedImageState?.selectedImageName as "string")?.length >
+            <code
+              title={`${selectedImageState.selectedImageName}.${selectedImageState?.selectedImageType}`}
+            >
+              {selectedImageState.selectedImageName.length >
               config.step2FileNameLength.max
                 ? `${
-                    selectedImageState?.selectedImageName.slice(
+                    selectedImageState.selectedImageName.slice(
                       0,
                       config.step2FileNameLength.visibleEnds
                     ) +
                     "..." +
-                    selectedImageState?.selectedImageName.slice(
+                    selectedImageState.selectedImageName.slice(
                       -config.step2FileNameLength.visibleEnds
                     )
-                  }.${selectedImageState?.selectedImageType}`
-                : `${selectedImageState?.selectedImageName}.${selectedImageState?.selectedImageType}`}
-            </Text>
-          </Text>
+                  }.${selectedImageState.selectedImageType}`
+                : `${selectedImageState.selectedImageName}.${selectedImageState.selectedImageType}`}
+            </code>
+          </Typography>
 
           <div className="button-group-container">
-            <Button appearance="primary" onClick={navigateToEncode}>
+            <Button onClick={navigateToEncode} variant="contained" size="large">
               hide text in selected image
             </Button>
-            <Divider appearance="subtle" vertical className="divider-vertical">
+            <Divider orientation="vertical" className="divider-vertical">
               or
             </Divider>
-            <Divider appearance="subtle" className="divider-horizontal">
+            <Divider orientation="horizontal" className="divider-horizontal">
               or
             </Divider>
             <Button
-              appearance="primary"
+              variant="contained"
               onClick={navigateToDecode}
               disabled={selectedImageState.selectedImageType !== "png"}
+              size="large"
             >
               get hidden text from selected image
             </Button>
           </div>
-          <Button appearance="subtle" onClick={uploadPhoto}>
+          <Button onClick={uploadPhoto} variant="outlined">
             change selected image?
           </Button>
           <ThemeToggle
             themeState={themeState}
             customChangeThemeState={customChangeThemeState}
           />
-          <Toaster
-            toasterId={toasterId}
-            position="bottom-start"
-            pauseOnHover
-            pauseOnWindowBlur
-          />
-        </div>
+        </Card>
+        <CustomSnackbar
+          snackbarState={snackbarState}
+          changeSnackbarState={changeSnackbarState}
+        />
       </main>
-    </FluentProvider>
+    </ThemeProvider>
   );
 };
 export default Step2Page;

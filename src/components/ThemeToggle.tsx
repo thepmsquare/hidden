@@ -1,52 +1,76 @@
-import React from "react";
+import React, { useState, useRef } from "react";
 import {
   Menu,
-  MenuButton,
-  MenuTrigger,
-  MenuList,
-  MenuPopover,
-  MenuItemRadio,
-} from "@fluentui/react-components";
-import {
-  bundleIcon,
-  WeatherMoonRegular,
-  WeatherMoonFilled,
-  WeatherSunnyRegular,
-  WeatherSunnyFilled,
-} from "@fluentui/react-icons";
-
-const WeatherMoonIcon = bundleIcon(WeatherMoonFilled, WeatherMoonRegular);
-const WeatherSunnyIcon = bundleIcon(WeatherSunnyFilled, WeatherSunnyRegular);
+  MenuItem,
+  Button,
+  ListItemText,
+  ListItemIcon,
+} from "@mui/material";
+import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
+import DarkModeIcon from "@mui/icons-material/DarkMode";
+import LightModeIcon from "@mui/icons-material/LightMode";
 
 const ThemeToggle = (props: {
-  themeState: { theme: ["dark" | "light"] };
-  customChangeThemeState: (newThemeState: {
-    theme: ["dark" | "light"];
-  }) => void;
+  themeState: "dark" | "light";
+  customChangeThemeState: (newThemeState: "dark" | "light") => void;
 }) => {
+  const [isThemeToggleMenuOpen, changeIsThemeToggleMenuOpen] = useState(false);
+  const handleOpen = () => {
+    changeIsThemeToggleMenuOpen(true);
+  };
+  const handleClose = () => {
+    changeIsThemeToggleMenuOpen(false);
+  };
+  const changeThemeAndClose = (newTheme: "dark" | "light") => {
+    props.customChangeThemeState(newTheme);
+    handleClose();
+  };
+  const buttonRef = useRef(null);
   return (
-    <Menu
-      checkedValues={props.themeState}
-      onCheckedValueChange={(e, data) => {
-        props.customChangeThemeState({
-          theme: data.checkedItems[0] === "dark" ? ["dark"] : ["light"],
-        });
-      }}
-    >
-      <MenuTrigger disableButtonEnhancement>
-        <MenuButton appearance="subtle">change appearance</MenuButton>
-      </MenuTrigger>
-      <MenuPopover>
-        <MenuList>
-          <MenuItemRadio icon={<WeatherMoonIcon />} name="theme" value="dark">
-            dark mode
-          </MenuItemRadio>
-          <MenuItemRadio icon={<WeatherSunnyIcon />} name="theme" value="light">
-            light mode
-          </MenuItemRadio>
-        </MenuList>
-      </MenuPopover>
-    </Menu>
+    <>
+      <Button
+        id="toggle-theme-button"
+        aria-controls={isThemeToggleMenuOpen ? "toggle-theme-menu" : undefined}
+        aria-haspopup="true"
+        aria-expanded={isThemeToggleMenuOpen ? "true" : undefined}
+        onClick={handleOpen}
+        ref={buttonRef}
+        endIcon={<KeyboardArrowDownIcon />}
+        size="small"
+        variant="outlined"
+      >
+        change appearance
+      </Button>
+
+      <Menu
+        id="toggle-theme-menu"
+        anchorEl={buttonRef.current}
+        open={isThemeToggleMenuOpen}
+        onClose={handleClose}
+        MenuListProps={{
+          "aria-labelledby": "toggle-theme-button",
+        }}
+      >
+        <MenuItem
+          onClick={() => changeThemeAndClose("dark")}
+          selected={props.themeState === "dark"}
+        >
+          <ListItemIcon>
+            <DarkModeIcon fontSize="small" />
+          </ListItemIcon>
+          <ListItemText>dark mode</ListItemText>
+        </MenuItem>
+        <MenuItem
+          onClick={() => changeThemeAndClose("light")}
+          selected={props.themeState === "light"}
+        >
+          <ListItemIcon>
+            <LightModeIcon fontSize="small" />
+          </ListItemIcon>
+          <ListItemText>light mode</ListItemText>
+        </MenuItem>
+      </Menu>
+    </>
   );
 };
 export default ThemeToggle;

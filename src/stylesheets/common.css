@@ -1,0 +1,13 @@
+body {
+  margin: 0;
+}
+.main {
+  height: 100dvh;
+  width: 100dvw;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  align-items: center;
+  background-position: center;
+  background-size: cover;
+}
