@@ -1,5 +1,5 @@
 import React, { FC, useState } from "react";
-import { HeadFC, PageProps, navigate } from "gatsby";
+import { type HeadFC, type PageProps, navigate } from "gatsby";
 import { Button, Typography, Card } from "@mui/material";
 import { ThemeProvider, createTheme } from "@mui/material/styles";
 import config from "../../config";

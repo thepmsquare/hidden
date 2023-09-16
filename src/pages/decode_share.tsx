@@ -27,7 +27,7 @@ const DecodeSharePage: FC<PageProps> = (props) => {
     [key: string]: any;
   }
   function isCustomStateType(obj: any): obj is CustomPropsType {
-    if (obj !== null) {
+    if (obj && obj !== null) {
       return "selectedImageState" in obj && "finalMessage" in obj;
     } else {
       return false;
@@ -39,7 +39,9 @@ const DecodeSharePage: FC<PageProps> = (props) => {
     selectedImageStateProps = props.location.state.selectedImageState;
     finalMessage = props.location.state.finalMessage;
   } else {
-    navigate("/");
+    if (isBrowser) {
+      navigate("/");
+    }
     return "";
   }
 

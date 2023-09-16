@@ -33,7 +33,7 @@ const DecodePage: FC<PageProps> = (props) => {
     [key: string]: any;
   }
   function isCustomStateType(obj: any): obj is CustomStateType {
-    if (obj !== null) {
+    if (obj && obj !== null) {
       return "selectedImageState" in obj;
     } else {
       return false;
@@ -44,7 +44,9 @@ const DecodePage: FC<PageProps> = (props) => {
   if (isCustomStateType(props.location.state)) {
     selectedImageStateProps = props.location.state.selectedImageState;
   } else {
-    navigate("/");
+    if (isBrowser) {
+      navigate("/");
+    }
     return "";
   }
 

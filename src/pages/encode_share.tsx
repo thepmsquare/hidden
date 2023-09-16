@@ -38,7 +38,7 @@ const EncodeSharePage: FC<PageProps> = (props) => {
     [key: string]: any;
   }
   function isCustomStateType(obj: any): obj is CustomPropsType {
-    if (obj !== null) {
+    if (obj && obj !== null) {
       return (
         "selectedImageState" in obj &&
         "newDataURL" in obj &&
@@ -55,7 +55,9 @@ const EncodeSharePage: FC<PageProps> = (props) => {
     selectedImageStateProps = props.location.state.selectedImageState;
     newDataURL = props.location.state.newDataURL;
   } else {
-    navigate("/");
+    if (isBrowser) {
+      navigate("/");
+    }
     return "";
   }
 
