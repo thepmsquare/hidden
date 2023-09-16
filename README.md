@@ -1,31 +1,49 @@
 # hidden
 
-PWA that is a wrapper for [hidden-api](https://github.com/thepmsquare/hidden-api) which provides plain-text encryption on top of steganography using AES. [Reference for Advanced Encryption Standard](https://en.wikipedia.org/wiki/Advanced_Encryption_Standard).
+## about
 
-Implementation of steganography using the least significant bits of the RGB values of an image.
+progressive web app to provide encryption and decryption using steganography using the least significant bits of the RGB values of an image on top of advanced encryption standard. [reference for advanced encryption standard](https://en.wikipedia.org/wiki/Advanced_Encryption_Standard).
+
+## video
 
 ![](hidden.gif)
 
-## Supported formats
+## supported formats
 
 ### input
 
-- PNG
-- JPEG
+- png
+- jpeg
+- webp
 
-Note: APNG or other animated image inputs will have unintended transformations in the encoded image.
+> note: apng or other animated image inputs will have unintended transformations in the encoded image.
 
 ### output
 
-- PNG
+- png
 
-Note: Output image will be in RGB / RGBA color modes only.
+> note: output image will be in rgb / rgba color modes only.
 
-## built on
+## configs
 
-- NodeJS v18.15.0
-- npm v9.5.0
+1. gatsby-config.ts
+2. config.ts
 
-and more inside `package.json`
+## env
 
-### Feedback is appreciated. Thank you!
+1. node js - v18.17.0
+2. npm - v9.6.7
+
+## changelog
+
+### v2
+
+- migrate to mui.
+- implementation using canvas api (without need for server).
+- webp support for encode.
+
+### v1
+
+- initial implementation using fastapi server.
+
+## Feedback is appreciated. Thank you!

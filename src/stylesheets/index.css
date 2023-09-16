@@ -1,12 +1,4 @@
-body {
-  margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen",
-    "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue",
-    sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  /* background for body */
-  background-image: url("../images/background.jpg");
-  background-position: 65% 50%;
-  background-size: cover;
+.index-start-button {
+  width: min(80dvw, 900px);
+  padding: 1rem;
 }
