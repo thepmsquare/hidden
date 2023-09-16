@@ -14,7 +14,7 @@ import "@fontsource/roboto/300.css";
 import "@fontsource/roboto/400.css";
 import "@fontsource/roboto/500.css";
 import "@fontsource/roboto/700.css";
-
+import ImageIcon from "@mui/icons-material/Image";
 const isBrowser = typeof window !== "undefined";
 
 export const Head: HeadFC = () => <title>hidden</title>;
@@ -102,6 +102,7 @@ const IndexPage: FC<PageProps> = () => {
             variant="contained"
             size="large"
             className="index-start-button"
+            startIcon={<ImageIcon />}
           >
             select an image
           </Button>

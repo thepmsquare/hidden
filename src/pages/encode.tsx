@@ -14,6 +14,9 @@ import "@fontsource/roboto/300.css";
 import "@fontsource/roboto/400.css";
 import "@fontsource/roboto/500.css";
 import "@fontsource/roboto/700.css";
+import ImageIcon from "@mui/icons-material/Image";
+import ArrowBackIcon from "@mui/icons-material/ArrowBack";
+import PasswordInput from "../components/PasswordInput";
 
 const isBrowser = typeof window !== "undefined";
 
@@ -157,7 +160,7 @@ const EncodePage: FC<PageProps> = (props) => {
     imageWidth: number,
     imageHeight: number,
     oldImageData: ImageData
-  ) => {
+  ): [ImageData, number, number] => {
     let newPixels = newImageData.data;
     let oldPixels = oldImageData.data;
     let finalEncodedMessage = encodedMessage + config.messageAppendedAtEnd;
@@ -168,6 +171,8 @@ const EncodePage: FC<PageProps> = (props) => {
         "Image with more pixels needed for encoding current message."
       );
     }
+    let numPixelsToChange = Math.ceil(msgLength / (2 * 3));
+    let percentImageChange = (numPixelsToChange / maxLength) * 100;
 
     let pixelIndex = 0;
     for (let i = 0; i < finalEncodedMessage.length; i += 6) {
@@ -209,7 +214,7 @@ const EncodePage: FC<PageProps> = (props) => {
     for (; pixelIndex < oldPixels.length; pixelIndex++) {
       newPixels[pixelIndex] = oldPixels[pixelIndex];
     }
-    return newImageData;
+    return [newImageData, numPixelsToChange, percentImageChange];
   };
 
   const handleFormSubmit = async (e: FormEvent) => {
@@ -236,8 +241,9 @@ const EncodePage: FC<PageProps> = (props) => {
 
       const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
       let newImageData = new ImageData(canvas.width, canvas.height);
-
-      newImageData = putMessageInImage(
+      let numPixelsToChange;
+      let percentImageChange;
+      [newImageData, numPixelsToChange, percentImageChange] = putMessageInImage(
         newImageData,
         encodedMessage,
         image.width,
@@ -251,6 +257,8 @@ const EncodePage: FC<PageProps> = (props) => {
         state: {
           selectedImageState,
           newDataURL,
+          numPixelsToChange,
+          percentImageChange,
         },
       });
     } catch (error: any) {
@@ -318,25 +326,40 @@ const EncodePage: FC<PageProps> = (props) => {
               required
               rows={3}
               multiline
+              autoFocus
+              label="message"
             />
-            <TextField
-              type="password"
+
+            <PasswordInput
               value={password}
               onChange={(e) => changePassword(e.target.value)}
-              placeholder="optional password"
+              uniqueIdForARIA="encode-password"
+              variant="outlined"
+              label="optional password"
+              others={{}}
             />
+
             <Button type="submit" size="large" variant="contained">
               submit
             </Button>
           </form>
-          <Button onClick={uploadPhoto} variant="outlined">
+          <Button
+            onClick={uploadPhoto}
+            variant="outlined"
+            startIcon={<ImageIcon />}
+          >
             change selected image
           </Button>
           <ThemeToggle
             themeState={themeState}
             customChangeThemeState={customChangeThemeState}
           />
-          <Button onClick={navigateToStep2} variant="outlined" size="small">
+          <Button
+            onClick={navigateToStep2}
+            variant="outlined"
+            size="small"
+            startIcon={<ArrowBackIcon />}
+          >
             go back
           </Button>
         </Card>

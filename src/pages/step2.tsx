@@ -13,6 +13,9 @@ import "@fontsource/roboto/300.css";
 import "@fontsource/roboto/400.css";
 import "@fontsource/roboto/500.css";
 import "@fontsource/roboto/700.css";
+import ImageIcon from "@mui/icons-material/Image";
+import LockIcon from "@mui/icons-material/Lock";
+import KeyIcon from "@mui/icons-material/Key";
 
 const isBrowser = typeof window !== "undefined";
 
@@ -174,8 +177,13 @@ const Step2Page: FC<PageProps> = (props) => {
           </Typography>
 
           <div className="button-group-container">
-            <Button onClick={navigateToEncode} variant="contained" size="large">
-              hide text in selected image
+            <Button
+              onClick={navigateToEncode}
+              variant="contained"
+              size="large"
+              startIcon={<LockIcon />}
+            >
+              hide text in image
             </Button>
             <Divider orientation="vertical" className="divider-vertical">
               or
@@ -188,11 +196,16 @@ const Step2Page: FC<PageProps> = (props) => {
               onClick={navigateToDecode}
               disabled={selectedImageState.selectedImageType !== "png"}
               size="large"
+              startIcon={<KeyIcon />}
             >
-              get hidden text from selected image
+              get hidden text from image
             </Button>
           </div>
-          <Button onClick={uploadPhoto} variant="outlined">
+          <Button
+            onClick={uploadPhoto}
+            variant="outlined"
+            startIcon={<ImageIcon />}
+          >
             change selected image
           </Button>
           <ThemeToggle

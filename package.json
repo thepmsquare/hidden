@@ -21,6 +21,7 @@
     "@fontsource/roboto": "^5.0.8",
     "@mui/icons-material": "^5.14.9",
     "@mui/material": "^5.14.9",
+    "client-zip": "^2.4.4",
     "crypto-js": "^4.1.1",
     "gatsby": "^5.11.0",
     "gatsby-plugin-image": "^3.11.0",

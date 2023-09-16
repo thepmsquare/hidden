@@ -1,6 +1,6 @@
 import React, { FC, FormEvent, useState } from "react";
 import { navigate, type HeadFC, type PageProps } from "gatsby";
-import { Button, Typography, TextField, Card } from "@mui/material";
+import { Button, Typography, Card } from "@mui/material";
 import { ThemeProvider, createTheme } from "@mui/material/styles";
 import CryptoJS from "crypto-js";
 import config from "../../config";
@@ -14,6 +14,9 @@ import "@fontsource/roboto/300.css";
 import "@fontsource/roboto/400.css";
 import "@fontsource/roboto/500.css";
 import "@fontsource/roboto/700.css";
+import ImageIcon from "@mui/icons-material/Image";
+import ArrowBackIcon from "@mui/icons-material/ArrowBack";
+import PasswordInput from "../components/PasswordInput";
 
 const isBrowser = typeof window !== "undefined";
 
@@ -200,7 +203,7 @@ const DecodePage: FC<PageProps> = (props) => {
     return binaryData;
   };
 
-  const handleFormSubmit = (e: FormEvent) => {
+  const handleFormSubmit = async (e: FormEvent) => {
     e.preventDefault();
     try {
       const image = new Image();
@@ -238,8 +241,12 @@ const DecodePage: FC<PageProps> = (props) => {
           );
         }
       }
-
-      console.log(finalMessage);
+      await navigate("/decode_share/", {
+        state: {
+          selectedImageState,
+          finalMessage,
+        },
+      });
     } catch (error: any) {
       changeSnackbarState({
         isOpen: true,
@@ -296,12 +303,14 @@ const DecodePage: FC<PageProps> = (props) => {
             </Typography>
           </Typography>
           <form className="form" onSubmit={handleFormSubmit}>
-            <TextField
-              type="password"
+            <PasswordInput
               value={password}
               onChange={(e) => changePassword(e.target.value)}
-              placeholder="optional password"
-            ></TextField>
+              others={{ autoFocus: true }}
+              uniqueIdForARIA="decode-password"
+              variant="outlined"
+              label="optional password"
+            />
             <Button
               type="submit"
               color="primary"
@@ -312,14 +321,23 @@ const DecodePage: FC<PageProps> = (props) => {
             </Button>
           </form>
 
-          <Button onClick={uploadPhoto} variant="outlined">
+          <Button
+            onClick={uploadPhoto}
+            variant="outlined"
+            startIcon={<ImageIcon />}
+          >
             change selected image
           </Button>
           <ThemeToggle
             themeState={themeState}
             customChangeThemeState={customChangeThemeState}
           />
-          <Button onClick={navigateToStep2} variant="outlined" size="small">
+          <Button
+            onClick={navigateToStep2}
+            variant="outlined"
+            size="small"
+            startIcon={<ArrowBackIcon />}
+          >
             go back
           </Button>
         </Card>
