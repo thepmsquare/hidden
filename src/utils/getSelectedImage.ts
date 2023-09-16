@@ -28,7 +28,8 @@ const getSelectedImage = (
       filetype === "jpeg" ||
       filetype === "jfif" ||
       filetype === "pjpeg" ||
-      filetype === "pjp"
+      filetype === "pjp" ||
+      filetype === "webp"
     ) {
       const fReader = new FileReader();
       fReader.readAsDataURL(e.target.files[0]);
@@ -47,7 +48,7 @@ const getSelectedImage = (
       changeSnackbarState({
         isOpen: true,
         message:
-          "unsupported image format. currently supported formats: image/jpeg, image/png.",
+          "unsupported image format. currently supported formats: image/jpeg, image/png, image/webp.",
         severity: "error",
       });
     }
@@ -55,7 +56,7 @@ const getSelectedImage = (
     changeSnackbarState({
       isOpen: true,
       message:
-        "unsupported image format. currently supported formats: image/jpeg, image/png.",
+        "unsupported image format. currently supported formats: image/jpeg, image/png, image/webp.",
       severity: "error",
     });
   }

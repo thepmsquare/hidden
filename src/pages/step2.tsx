@@ -86,7 +86,7 @@ const Step2Page: FC<PageProps> = (props) => {
   const uploadPhoto = () => {
     let inputDOM = document.createElement("input");
     inputDOM.setAttribute("type", "file");
-    inputDOM.setAttribute("accept", "image/png,image/jpeg");
+    inputDOM.setAttribute("accept", "image/png,image/jpeg,image/webp");
     inputDOM.addEventListener("change", (e) => {
       getSelectedImage(
         e,
