@@ -18,7 +18,16 @@ const config: GatsbyConfig = {
     {
       resolve: "gatsby-plugin-manifest",
       options: {
+        name: `hidden`,
+        short_name: `hidden`,
+        start_url: "/",
         icon: "src/images/hidden.svg",
+        display: "fullscreen",
+        background_color: `#000000`,
+        theme_color: `#00ffff`,
+        icon_options: {
+          purpose: `any maskable`,
+        },
       },
     },
     "gatsby-plugin-sharp",
