@@ -71,7 +71,6 @@ const IndexPage: FC<PageProps> = () => {
           selectedImageName: string,
           selectedImageType: string
         ) => {
-          // TODO
           await navigate("/step2/", {
             state: {
               selectedImageState: {

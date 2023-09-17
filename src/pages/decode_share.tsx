@@ -33,10 +33,12 @@ const DecodeSharePage: FC<PageProps> = (props) => {
       return false;
     }
   }
-  let selectedImageStateProps: CustomPropsType["selectedImageState"];
+  let selectedImageURL: string;
   let finalMessage: string;
   if (isCustomStateType(props.location.state)) {
-    selectedImageStateProps = props.location.state.selectedImageState;
+    selectedImageURL = URL.createObjectURL(
+      props.location.state.selectedImageState.selectedImage
+    );
     finalMessage = props.location.state.finalMessage;
   } else {
     if (isBrowser) {
@@ -102,9 +104,7 @@ const DecodeSharePage: FC<PageProps> = (props) => {
       <main
         className="main"
         style={{
-          backgroundImage: `url("${URL.createObjectURL(
-            selectedImageStateProps.selectedImage
-          )}")`,
+          backgroundImage: `url("${selectedImageURL}")`,
         }}
       >
         <Card className="inside-main">

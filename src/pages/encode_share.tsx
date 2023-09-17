@@ -47,10 +47,12 @@ const EncodeSharePage: FC<PageProps> = (props) => {
   }
   let selectedImageName: string;
   let newDataBlob: Blob;
+  let newDataBlobURL: string;
 
   if (isCustomStateType(props.location.state)) {
     selectedImageName = props.location.state.selectedImageName;
     newDataBlob = props.location.state.newDataBlob;
+    newDataBlobURL = URL.createObjectURL(newDataBlob);
   } else {
     if (isBrowser) {
       navigate("/");
@@ -170,7 +172,7 @@ const EncodeSharePage: FC<PageProps> = (props) => {
       <main
         className="main"
         style={{
-          backgroundImage: `url("${newDataBlob}")`,
+          backgroundImage: `url("${newDataBlobURL}")`,
         }}
       >
         <Card className="inside-main">

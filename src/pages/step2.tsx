@@ -42,13 +42,14 @@ const Step2Page: FC<PageProps> = (props) => {
   let selectedImageStateProps;
   if (isCustomStateType(props.location.state)) {
     selectedImageStateProps = {
-      selectedImage: URL.createObjectURL(
-        props.location.state.selectedImageState.selectedImage
-      ),
+      selectedImage: props.location.state.selectedImageState.selectedImage,
       selectedImageName:
         props.location.state.selectedImageState.selectedImageName,
       selectedImageType:
         props.location.state.selectedImageState.selectedImageType,
+      selectedImageURL: URL.createObjectURL(
+        props.location.state.selectedImageState.selectedImage
+      ),
     };
   } else {
     if (isBrowser) {
@@ -103,9 +104,10 @@ const Step2Page: FC<PageProps> = (props) => {
         e,
         (selectedImage, selectedImageName, selectedImageType) => {
           changeSelectedImageState({
-            selectedImage,
+            selectedImage: dataURLToBlob(selectedImage),
             selectedImageName,
             selectedImageType,
+            selectedImageURL: selectedImage,
           });
         },
         changeSnackbarState
@@ -116,11 +118,10 @@ const Step2Page: FC<PageProps> = (props) => {
 
   const navigateToEncode = async () => {
     if (selectedImageState) {
-      // TODO
       await navigate("/encode/", {
         state: {
           selectedImageState: {
-            selectedImage: dataURLToBlob(selectedImageState.selectedImage),
+            selectedImage: selectedImageState.selectedImage,
             selectedImageName: selectedImageState.selectedImageName,
             selectedImageType: selectedImageState.selectedImageType,
           },
@@ -137,11 +138,10 @@ const Step2Page: FC<PageProps> = (props) => {
 
   const navigateToDecode = async () => {
     if (selectedImageState) {
-      // TODO
       await navigate("/decode/", {
         state: {
           selectedImageState: {
-            selectedImage: dataURLToBlob(selectedImageState.selectedImage),
+            selectedImage: selectedImageState.selectedImage,
             selectedImageName: selectedImageState.selectedImageName,
             selectedImageType: selectedImageState.selectedImageType,
           },
@@ -170,7 +170,7 @@ const Step2Page: FC<PageProps> = (props) => {
       <main
         className="main"
         style={{
-          backgroundImage: `url("${selectedImageState?.selectedImage}")`,
+          backgroundImage: `url("${selectedImageState.selectedImageURL}")`,
         }}
       >
         <Card className="inside-main">

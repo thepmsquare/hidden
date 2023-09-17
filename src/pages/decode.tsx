@@ -44,13 +44,14 @@ const DecodePage: FC<PageProps> = (props) => {
 
   if (isCustomStateType(props.location.state)) {
     selectedImageStateProps = {
-      selectedImage: URL.createObjectURL(
-        props.location.state.selectedImageState.selectedImage
-      ),
+      selectedImage: props.location.state.selectedImageState.selectedImage,
       selectedImageName:
         props.location.state.selectedImageState.selectedImageName,
       selectedImageType:
         props.location.state.selectedImageState.selectedImageType,
+      selectedImageURL: URL.createObjectURL(
+        props.location.state.selectedImageState.selectedImage
+      ),
     };
   } else {
     if (isBrowser) {
@@ -106,9 +107,10 @@ const DecodePage: FC<PageProps> = (props) => {
         e,
         (selectedImage, selectedImageName, selectedImageType) => {
           changeSelectedImageState({
-            selectedImage,
+            selectedImage: dataURLToBlob(selectedImage),
             selectedImageName,
             selectedImageType,
+            selectedImageURL: selectedImage,
           });
         },
         changeSnackbarState
@@ -218,7 +220,7 @@ const DecodePage: FC<PageProps> = (props) => {
     e.preventDefault();
     try {
       const image = new Image();
-      image.src = selectedImageState.selectedImage;
+      image.src = selectedImageState.selectedImageURL;
       const canvas = document.createElement("canvas");
       canvas.width = image.width;
       canvas.height = image.height;
@@ -254,9 +256,8 @@ const DecodePage: FC<PageProps> = (props) => {
       }
       await navigate("/decode_share/", {
         state: {
-          // TODO
           selectedImageState: {
-            selectedImage: dataURLToBlob(selectedImageState.selectedImage),
+            selectedImage: selectedImageState.selectedImage,
             selectedImageName: selectedImageState.selectedImageName,
             selectedImageType: selectedImageState.selectedImageType,
           },
@@ -272,11 +273,10 @@ const DecodePage: FC<PageProps> = (props) => {
     }
   };
   const navigateToStep2 = async () => {
-    // TODO
     await navigate("/step2/", {
       state: {
         selectedImageState: {
-          selectedImage: dataURLToBlob(selectedImageState.selectedImage),
+          selectedImage: selectedImageState.selectedImage,
           selectedImageName: selectedImageState.selectedImageName,
           selectedImageType: selectedImageState.selectedImageType,
         },
@@ -297,7 +297,7 @@ const DecodePage: FC<PageProps> = (props) => {
       <main
         className="main"
         style={{
-          backgroundImage: `url("${selectedImageState?.selectedImage}")`,
+          backgroundImage: `url("${selectedImageState.selectedImageURL}")`,
         }}
       >
         <Card className="inside-main">
