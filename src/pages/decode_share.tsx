@@ -1,6 +1,13 @@
-import React, { FC, useState } from "react";
+import React, { FC, useState, StrictMode } from "react";
 import { navigate, type HeadFC, type PageProps } from "gatsby";
-import { Button, Typography, Card, CardMedia, TextField } from "@mui/material";
+import {
+  Button,
+  Typography,
+  Card,
+  CardMedia,
+  TextField,
+  StyledEngineProvider,
+} from "@mui/material";
 import { ThemeProvider, createTheme } from "@mui/material/styles";
 import config from "../../config";
 import ThemeToggle from "../components/ThemeToggle";
@@ -100,51 +107,54 @@ const DecodeSharePage: FC<PageProps> = (props) => {
     },
   });
   return (
-    <ThemeProvider theme={currentTheme}>
-      <main
-        className="main"
-        style={{
-          backgroundImage: `url("${selectedImageURL}")`,
-        }}
-      >
-        <Card className="inside-main">
-          {" "}
-          <CardMedia className="custom-card-media">
-            <DoneIcon color="success" fontSize="large" />
-            <Typography>your message was decoded successfully.</Typography>
-          </CardMedia>
-          <TextField
-            label="message"
-            disabled
-            multiline
-            rows={3}
-            value={finalMessage}
-          />
-          <Button
-            variant={isCopiedTrue ? "outlined" : "contained"}
-            startIcon={<ContentCopyIcon />}
-            onClick={copyToClipboard}
+    <StrictMode>
+      <ThemeProvider theme={currentTheme}>
+        <StyledEngineProvider injectFirst>
+          <main
+            className="main"
+            style={{
+              backgroundImage: `url("${selectedImageURL}")`,
+            }}
           >
-            {isCopiedTrue ? "copy message again" : "copy message"}
-          </Button>
-          <Button
-            onClick={navigateToHome}
-            variant="outlined"
-            startIcon={<RestartAltIcon />}
-          >
-            start over
-          </Button>
-          <ThemeToggle
-            themeState={themeState}
-            customChangeThemeState={customChangeThemeState}
-          />
-        </Card>
-        <CustomSnackbar
-          snackbarState={snackbarState}
-          changeSnackbarState={changeSnackbarState}
-        />
-      </main>
-    </ThemeProvider>
+            <Card className="inside-main">
+              <CardMedia className="custom-card-media">
+                <DoneIcon color="success" fontSize="large" />
+                <Typography>your message was decoded successfully.</Typography>
+              </CardMedia>
+              <TextField
+                label="message"
+                disabled
+                multiline
+                rows={3}
+                value={finalMessage}
+              />
+              <Button
+                variant={isCopiedTrue ? "outlined" : "contained"}
+                startIcon={<ContentCopyIcon />}
+                onClick={copyToClipboard}
+              >
+                {isCopiedTrue ? "copy message again" : "copy message"}
+              </Button>
+              <Button
+                onClick={navigateToHome}
+                variant="outlined"
+                startIcon={<RestartAltIcon />}
+              >
+                start over
+              </Button>
+              <ThemeToggle
+                themeState={themeState}
+                customChangeThemeState={customChangeThemeState}
+              />
+            </Card>
+            <CustomSnackbar
+              snackbarState={snackbarState}
+              changeSnackbarState={changeSnackbarState}
+            />
+          </main>
+        </StyledEngineProvider>
+      </ThemeProvider>
+    </StrictMode>
   );
 };
 export default DecodeSharePage;

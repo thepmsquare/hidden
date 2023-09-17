@@ -1,7 +1,7 @@
-import React, { FC, useState } from "react";
+import React, { FC, useState, StrictMode } from "react";
 import { navigate } from "gatsby";
 import type { HeadFC, PageProps } from "gatsby";
-import { Button, Card } from "@mui/material";
+import { Button, Card, StyledEngineProvider } from "@mui/material";
 import { ThemeProvider, createTheme } from "@mui/material/styles";
 import config from "../../config";
 import ThemeToggle from "../components/ThemeToggle";
@@ -28,7 +28,6 @@ const IndexPage: FC<PageProps> = () => {
   } else {
     localStorageTheme = null;
   }
-  console.info("direct from local storage: ", localStorageTheme);
   let defaultThemeState: "dark" | "light";
   if (localStorageTheme !== null) {
     defaultThemeState = localStorageTheme === "dark" ? "dark" : "light";
@@ -38,7 +37,6 @@ const IndexPage: FC<PageProps> = () => {
       window.localStorage.setItem("theme", config.defaultThemeState);
     }
   }
-  console.info("defaultThemeState: ", defaultThemeState);
 
   // state
   const [themeState, changeThemeState] = useState(defaultThemeState);
@@ -48,7 +46,6 @@ const IndexPage: FC<PageProps> = () => {
       message: "",
       severity: "error",
     });
-  console.info("themeState: ", themeState);
 
   // functions
 
@@ -96,31 +93,35 @@ const IndexPage: FC<PageProps> = () => {
       fontFamily: config.defaultFont,
     },
   });
-  console.info("currentTheme: ", JSON.stringify(currentTheme.palette.mode));
+
   return (
-    <ThemeProvider theme={currentTheme}>
-      <Card className="main" square>
-        <div className="inside-main">
-          <Button
-            onClick={uploadPhoto}
-            variant="contained"
-            size="large"
-            className="index-start-button"
-            startIcon={<ImageIcon />}
-          >
-            select an image
-          </Button>
-          <ThemeToggle
-            themeState={themeState}
-            customChangeThemeState={customChangeThemeState}
+    <StrictMode>
+      <ThemeProvider theme={currentTheme}>
+        <StyledEngineProvider injectFirst>
+          <Card className="main" square>
+            <div className="inside-main">
+              <Button
+                onClick={uploadPhoto}
+                variant="contained"
+                size="large"
+                className="index-start-button"
+                startIcon={<ImageIcon />}
+              >
+                select an image
+              </Button>
+              <ThemeToggle
+                themeState={themeState}
+                customChangeThemeState={customChangeThemeState}
+              />
+            </div>
+          </Card>
+          <CustomSnackbar
+            snackbarState={snackbarState}
+            changeSnackbarState={changeSnackbarState}
           />
-        </div>
-      </Card>
-      <CustomSnackbar
-        snackbarState={snackbarState}
-        changeSnackbarState={changeSnackbarState}
-      />
-    </ThemeProvider>
+        </StyledEngineProvider>
+      </ThemeProvider>
+    </StrictMode>
   );
 };
 

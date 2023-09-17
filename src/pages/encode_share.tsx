@@ -1,4 +1,4 @@
-import React, { FC, useState } from "react";
+import React, { FC, StrictMode, useState } from "react";
 import { navigate, type HeadFC, type PageProps } from "gatsby";
 import {
   Button,
@@ -6,6 +6,7 @@ import {
   Card,
   CardMedia,
   CardContent,
+  StyledEngineProvider,
 } from "@mui/material";
 import { ThemeProvider, createTheme } from "@mui/material/styles";
 import config from "../../config";
@@ -168,76 +169,80 @@ const EncodeSharePage: FC<PageProps> = (props) => {
     },
   });
   return (
-    <ThemeProvider theme={currentTheme}>
-      <main
-        className="main"
-        style={{
-          backgroundImage: `url("${newDataBlobURL}")`,
-        }}
-      >
-        <Card className="inside-main">
-          <CardMedia className="custom-card-media">
-            <DoneIcon color="success" fontSize="large" />
-            <Typography>your message was hidden successfully.</Typography>
-          </CardMedia>
-          <CardContent>
-            <Typography align="justify">
-              to do this{" "}
-              <Typography variant="button" color="primary">
-                {props.location.state.numPixelsToChange}
-              </Typography>{" "}
-              pixel(s) were considered for modification, which is around{" "}
-              <Typography variant="button" color="primary">
-                {props.location.state.percentImageChange.toFixed(2)}%
-              </Typography>{" "}
-              of the selected image.
-            </Typography>
-          </CardContent>
+    <StrictMode>
+      <ThemeProvider theme={currentTheme}>
+        <StyledEngineProvider injectFirst>
+          <main
+            className="main"
+            style={{
+              backgroundImage: `url("${newDataBlobURL}")`,
+            }}
+          >
+            <Card className="inside-main">
+              <CardMedia className="custom-card-media">
+                <DoneIcon color="success" fontSize="large" />
+                <Typography>your message was hidden successfully.</Typography>
+              </CardMedia>
+              <CardContent>
+                <Typography align="justify">
+                  to do this{" "}
+                  <Typography variant="button" color="primary">
+                    {props.location.state.numPixelsToChange}
+                  </Typography>{" "}
+                  pixel(s) were considered for modification, which is around{" "}
+                  <Typography variant="button" color="primary">
+                    {props.location.state.percentImageChange.toFixed(2)}%
+                  </Typography>{" "}
+                  of the selected image.
+                </Typography>
+              </CardContent>
 
-          <Button
-            onClick={downloadModifiedImage}
-            variant="contained"
-            size="large"
-            color="primary"
-            startIcon={<SaveIcon />}
-          >
-            save modified image
-          </Button>
-          <Button
-            variant="outlined"
-            startIcon={<SaveIcon />}
-            color="primary"
-            onClick={downloadModifiedZIP}
-          >
-            save as zip file
-          </Button>
-          <Button
-            variant="outlined"
-            startIcon={<ShareIcon />}
-            color="warning"
-            onClick={shareModifiedImage}
-            title="may result in data loss, if image is compressed."
-          >
-            share (do not compress)
-          </Button>
-          <Button
-            onClick={navigateToHome}
-            variant="outlined"
-            startIcon={<RestartAltIcon />}
-          >
-            start over
-          </Button>
-          <ThemeToggle
-            themeState={themeState}
-            customChangeThemeState={customChangeThemeState}
-          />
-        </Card>
-        <CustomSnackbar
-          snackbarState={snackbarState}
-          changeSnackbarState={changeSnackbarState}
-        />
-      </main>
-    </ThemeProvider>
+              <Button
+                onClick={downloadModifiedImage}
+                variant="contained"
+                size="large"
+                color="primary"
+                startIcon={<SaveIcon />}
+              >
+                save modified image
+              </Button>
+              <Button
+                variant="outlined"
+                startIcon={<SaveIcon />}
+                color="primary"
+                onClick={downloadModifiedZIP}
+              >
+                save as zip file
+              </Button>
+              <Button
+                variant="outlined"
+                startIcon={<ShareIcon />}
+                color="warning"
+                onClick={shareModifiedImage}
+                title="may result in data loss, if image is compressed."
+              >
+                share (do not compress)
+              </Button>
+              <Button
+                onClick={navigateToHome}
+                variant="outlined"
+                startIcon={<RestartAltIcon />}
+              >
+                start over
+              </Button>
+              <ThemeToggle
+                themeState={themeState}
+                customChangeThemeState={customChangeThemeState}
+              />
+            </Card>
+            <CustomSnackbar
+              snackbarState={snackbarState}
+              changeSnackbarState={changeSnackbarState}
+            />
+          </main>
+        </StyledEngineProvider>
+      </ThemeProvider>
+    </StrictMode>
   );
 };
 export default EncodeSharePage;

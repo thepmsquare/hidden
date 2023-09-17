@@ -1,6 +1,6 @@
-import React, { FC, FormEvent, useState } from "react";
+import React, { FC, FormEvent, useState, StrictMode } from "react";
 import { navigate, type HeadFC, type PageProps } from "gatsby";
-import { Button, Typography, Card } from "@mui/material";
+import { Button, Typography, Card, StyledEngineProvider } from "@mui/material";
 import { ThemeProvider, createTheme } from "@mui/material/styles";
 import CryptoJS from "crypto-js";
 import config from "../../config";
@@ -293,81 +293,85 @@ const DecodePage: FC<PageProps> = (props) => {
     },
   });
   return (
-    <ThemeProvider theme={currentTheme}>
-      <main
-        className="main"
-        style={{
-          backgroundImage: `url("${selectedImageState.selectedImageURL}")`,
-        }}
-      >
-        <Card className="inside-main">
-          <Typography>
-            selected image:{" "}
-            <Typography
-              title={`${selectedImageState.selectedImageName}.${selectedImageState?.selectedImageType}`}
-              color="primary"
-              variant="button"
-            >
-              {selectedImageState.selectedImageName.length >
-              config.step2FileNameLength.max
-                ? `${
-                    selectedImageState.selectedImageName.slice(
-                      0,
-                      config.step2FileNameLength.visibleEnds
-                    ) +
-                    "..." +
-                    selectedImageState.selectedImageName.slice(
-                      -config.step2FileNameLength.visibleEnds
-                    )
-                  }.${selectedImageState.selectedImageType}`
-                : `${selectedImageState.selectedImageName}.${selectedImageState.selectedImageType}`}
-            </Typography>
-          </Typography>
-          <form className="form" onSubmit={handleFormSubmit}>
-            <PasswordInput
-              value={password}
-              onChange={(e) => changePassword(e.target.value)}
-              others={{ autoFocus: true }}
-              uniqueIdForARIA="decode-password"
-              variant="outlined"
-              label="optional password"
-            />
-            <Button
-              type="submit"
-              color="primary"
-              variant="contained"
-              size="large"
-            >
-              submit
-            </Button>
-          </form>
+    <StrictMode>
+      <ThemeProvider theme={currentTheme}>
+        <StyledEngineProvider injectFirst>
+          <main
+            className="main"
+            style={{
+              backgroundImage: `url("${selectedImageState.selectedImageURL}")`,
+            }}
+          >
+            <Card className="inside-main">
+              <Typography>
+                selected image:{" "}
+                <Typography
+                  title={`${selectedImageState.selectedImageName}.${selectedImageState?.selectedImageType}`}
+                  color="primary"
+                  variant="button"
+                >
+                  {selectedImageState.selectedImageName.length >
+                  config.step2FileNameLength.max
+                    ? `${
+                        selectedImageState.selectedImageName.slice(
+                          0,
+                          config.step2FileNameLength.visibleEnds
+                        ) +
+                        "..." +
+                        selectedImageState.selectedImageName.slice(
+                          -config.step2FileNameLength.visibleEnds
+                        )
+                      }.${selectedImageState.selectedImageType}`
+                    : `${selectedImageState.selectedImageName}.${selectedImageState.selectedImageType}`}
+                </Typography>
+              </Typography>
+              <form className="form" onSubmit={handleFormSubmit}>
+                <PasswordInput
+                  value={password}
+                  onChange={(e) => changePassword(e.target.value)}
+                  others={{ autoFocus: true }}
+                  uniqueIdForARIA="decode-password"
+                  variant="outlined"
+                  label="optional password"
+                />
+                <Button
+                  type="submit"
+                  color="primary"
+                  variant="contained"
+                  size="large"
+                >
+                  submit
+                </Button>
+              </form>
 
-          <Button
-            onClick={uploadPhoto}
-            variant="outlined"
-            startIcon={<ImageIcon />}
-          >
-            change selected image
-          </Button>
-          <ThemeToggle
-            themeState={themeState}
-            customChangeThemeState={customChangeThemeState}
-          />
-          <Button
-            onClick={navigateToStep2}
-            variant="outlined"
-            size="small"
-            startIcon={<ArrowBackIcon />}
-          >
-            go back
-          </Button>
-        </Card>
-        <CustomSnackbar
-          snackbarState={snackbarState}
-          changeSnackbarState={changeSnackbarState}
-        />
-      </main>
-    </ThemeProvider>
+              <Button
+                onClick={uploadPhoto}
+                variant="outlined"
+                startIcon={<ImageIcon />}
+              >
+                change selected image
+              </Button>
+              <ThemeToggle
+                themeState={themeState}
+                customChangeThemeState={customChangeThemeState}
+              />
+              <Button
+                onClick={navigateToStep2}
+                variant="outlined"
+                size="small"
+                startIcon={<ArrowBackIcon />}
+              >
+                go back
+              </Button>
+            </Card>
+            <CustomSnackbar
+              snackbarState={snackbarState}
+              changeSnackbarState={changeSnackbarState}
+            />
+          </main>
+        </StyledEngineProvider>
+      </ThemeProvider>
+    </StrictMode>
   );
 };
 export default DecodePage;

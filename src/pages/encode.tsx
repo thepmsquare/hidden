@@ -1,6 +1,12 @@
-import React, { FC, FormEvent, useState } from "react";
+import React, { FC, FormEvent, useState, StrictMode } from "react";
 import { navigate, type HeadFC, type PageProps } from "gatsby";
-import { Button, Typography, TextField, Card } from "@mui/material";
+import {
+  Button,
+  Typography,
+  TextField,
+  Card,
+  StyledEngineProvider,
+} from "@mui/material";
 import { ThemeProvider, createTheme } from "@mui/material/styles";
 import CryptoJS from "crypto-js";
 import config from "../../config";
@@ -306,87 +312,91 @@ const EncodePage: FC<PageProps> = (props) => {
     },
   });
   return (
-    <ThemeProvider theme={currentTheme}>
-      <main
-        className="main"
-        style={{
-          backgroundImage: `url("${selectedImageState.selectedImageURL}")`,
-        }}
-      >
-        <Card className="inside-main">
-          <Typography>
-            selected image:{" "}
-            <Typography
-              title={`${selectedImageState.selectedImageName}.${selectedImageState?.selectedImageType}`}
-              color="primary"
-              variant="button"
-            >
-              {selectedImageState.selectedImageName.length >
-              config.step2FileNameLength.max
-                ? `${
-                    selectedImageState.selectedImageName.slice(
-                      0,
-                      config.step2FileNameLength.visibleEnds
-                    ) +
-                    "..." +
-                    selectedImageState.selectedImageName.slice(
-                      -config.step2FileNameLength.visibleEnds
-                    )
-                  }.${selectedImageState.selectedImageType}`
-                : `${selectedImageState.selectedImageName}.${selectedImageState.selectedImageType}`}
-            </Typography>
-          </Typography>
-          <form className="form" onSubmit={handleFormSubmit}>
-            <TextField
-              placeholder="enter text to hide in selected image"
-              value={message}
-              onChange={(e) => changeMessage(e.target.value)}
-              required
-              rows={3}
-              multiline
-              autoFocus
-              label="message"
-            />
-
-            <PasswordInput
-              value={password}
-              onChange={(e) => changePassword(e.target.value)}
-              uniqueIdForARIA="encode-password"
-              variant="outlined"
-              label="optional password"
-              others={{}}
-            />
-
-            <Button type="submit" size="large" variant="contained">
-              submit
-            </Button>
-          </form>
-          <Button
-            onClick={uploadPhoto}
-            variant="outlined"
-            startIcon={<ImageIcon />}
+    <StrictMode>
+      <ThemeProvider theme={currentTheme}>
+        <StyledEngineProvider injectFirst>
+          <main
+            className="main"
+            style={{
+              backgroundImage: `url("${selectedImageState.selectedImageURL}")`,
+            }}
           >
-            change selected image
-          </Button>
-          <ThemeToggle
-            themeState={themeState}
-            customChangeThemeState={customChangeThemeState}
-          />
-          <Button
-            onClick={navigateToStep2}
-            variant="outlined"
-            size="small"
-            startIcon={<ArrowBackIcon />}
-          >
-            go back
-          </Button>
-        </Card>
-        <CustomSnackbar
-          snackbarState={snackbarState}
-          changeSnackbarState={changeSnackbarState}
-        />
-      </main>
-    </ThemeProvider>
+            <Card className="inside-main">
+              <Typography>
+                selected image:{" "}
+                <Typography
+                  title={`${selectedImageState.selectedImageName}.${selectedImageState?.selectedImageType}`}
+                  color="primary"
+                  variant="button"
+                >
+                  {selectedImageState.selectedImageName.length >
+                  config.step2FileNameLength.max
+                    ? `${
+                        selectedImageState.selectedImageName.slice(
+                          0,
+                          config.step2FileNameLength.visibleEnds
+                        ) +
+                        "..." +
+                        selectedImageState.selectedImageName.slice(
+                          -config.step2FileNameLength.visibleEnds
+                        )
+                      }.${selectedImageState.selectedImageType}`
+                    : `${selectedImageState.selectedImageName}.${selectedImageState.selectedImageType}`}
+                </Typography>
+              </Typography>
+              <form className="form" onSubmit={handleFormSubmit}>
+                <TextField
+                  placeholder="enter text to hide in selected image"
+                  value={message}
+                  onChange={(e) => changeMessage(e.target.value)}
+                  required
+                  rows={3}
+                  multiline
+                  autoFocus
+                  label="message"
+                />
+
+                <PasswordInput
+                  value={password}
+                  onChange={(e) => changePassword(e.target.value)}
+                  uniqueIdForARIA="encode-password"
+                  variant="outlined"
+                  label="optional password"
+                  others={{}}
+                />
+
+                <Button type="submit" size="large" variant="contained">
+                  submit
+                </Button>
+              </form>
+              <Button
+                onClick={uploadPhoto}
+                variant="outlined"
+                startIcon={<ImageIcon />}
+              >
+                change selected image
+              </Button>
+              <ThemeToggle
+                themeState={themeState}
+                customChangeThemeState={customChangeThemeState}
+              />
+              <Button
+                onClick={navigateToStep2}
+                variant="outlined"
+                size="small"
+                startIcon={<ArrowBackIcon />}
+              >
+                go back
+              </Button>
+            </Card>
+            <CustomSnackbar
+              snackbarState={snackbarState}
+              changeSnackbarState={changeSnackbarState}
+            />
+          </main>
+        </StyledEngineProvider>
+      </ThemeProvider>
+    </StrictMode>
   );
 };
 export default EncodePage;

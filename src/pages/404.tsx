@@ -1,6 +1,6 @@
-import React, { FC, useState } from "react";
+import React, { FC, useState, StrictMode } from "react";
 import { type HeadFC, type PageProps, navigate } from "gatsby";
-import { Button, Typography, Card } from "@mui/material";
+import { Button, Typography, Card, StyledEngineProvider } from "@mui/material";
 import { ThemeProvider, createTheme } from "@mui/material/styles";
 import config from "../../config";
 import ThemeToggle from "../components/ThemeToggle";
@@ -58,28 +58,36 @@ const NotFoundPage: FC<PageProps> = (props) => {
     },
   });
   return (
-    <ThemeProvider theme={currentTheme}>
-      <Card className="main" square>
-        <div className="inside-main">
-          <Typography align="center" color="error">
-            404
-          </Typography>{" "}
-          <Typography align="center" color="error">
-            {props.location.pathname.length > 10
-              ? props.location.pathname.slice(0, 10) + "..."
-              : props.location.pathname}{" "}
-            page does not exist.
-          </Typography>
-          <Button variant="contained" size="large" onClick={navtigateToHome}>
-            go to home page
-          </Button>
-          <ThemeToggle
-            themeState={themeState}
-            customChangeThemeState={customChangeThemeState}
-          />
-        </div>
-      </Card>
-    </ThemeProvider>
+    <StrictMode>
+      <ThemeProvider theme={currentTheme}>
+        <StyledEngineProvider injectFirst>
+          <Card className="main" square>
+            <div className="inside-main">
+              <Typography align="center" color="error">
+                404
+              </Typography>{" "}
+              <Typography align="center" color="error">
+                {props.location.pathname.length > 10
+                  ? props.location.pathname.slice(0, 10) + "..."
+                  : props.location.pathname}{" "}
+                page does not exist.
+              </Typography>
+              <Button
+                variant="contained"
+                size="large"
+                onClick={navtigateToHome}
+              >
+                go to home page
+              </Button>
+              <ThemeToggle
+                themeState={themeState}
+                customChangeThemeState={customChangeThemeState}
+              />
+            </div>
+          </Card>
+        </StyledEngineProvider>
+      </ThemeProvider>
+    </StrictMode>
   );
 };
 

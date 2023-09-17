@@ -1,6 +1,12 @@
-import React, { FC, useState } from "react";
+import React, { FC, StrictMode, useState } from "react";
 import { navigate, type HeadFC, type PageProps } from "gatsby";
-import { Button, Divider, Typography, Card } from "@mui/material";
+import {
+  Button,
+  Divider,
+  Typography,
+  Card,
+  StyledEngineProvider,
+} from "@mui/material";
 import { ThemeProvider, createTheme } from "@mui/material/styles";
 import config from "../../config";
 import ThemeToggle from "../components/ThemeToggle";
@@ -166,80 +172,87 @@ const Step2Page: FC<PageProps> = (props) => {
     },
   });
   return (
-    <ThemeProvider theme={currentTheme}>
-      <main
-        className="main"
-        style={{
-          backgroundImage: `url("${selectedImageState.selectedImageURL}")`,
-        }}
-      >
-        <Card className="inside-main">
-          <Typography align="center">
-            selected image:{" "}
-            <Typography
-              title={`${selectedImageState.selectedImageName}.${selectedImageState?.selectedImageType}`}
-              color="primary"
-              variant="button"
-            >
-              {selectedImageState.selectedImageName.length >
-              config.step2FileNameLength.max
-                ? `${
-                    selectedImageState.selectedImageName.slice(
-                      0,
-                      config.step2FileNameLength.visibleEnds
-                    ) +
-                    "..." +
-                    selectedImageState.selectedImageName.slice(
-                      -config.step2FileNameLength.visibleEnds
-                    )
-                  }.${selectedImageState.selectedImageType}`
-                : `${selectedImageState.selectedImageName}.${selectedImageState.selectedImageType}`}
-            </Typography>
-          </Typography>
-
-          <div className="button-group-container">
-            <Button
-              onClick={navigateToEncode}
-              variant="contained"
-              size="large"
-              startIcon={<LockIcon />}
-            >
-              hide text in image
-            </Button>
-            <Divider orientation="vertical" className="divider-vertical">
-              or
-            </Divider>
-            <Divider orientation="horizontal" className="divider-horizontal">
-              or
-            </Divider>
-            <Button
-              variant="contained"
-              onClick={navigateToDecode}
-              disabled={selectedImageState.selectedImageType !== "png"}
-              size="large"
-              startIcon={<KeyIcon />}
-            >
-              get hidden text from image
-            </Button>
-          </div>
-          <Button
-            onClick={uploadPhoto}
-            variant="outlined"
-            startIcon={<ImageIcon />}
+    <StrictMode>
+      <ThemeProvider theme={currentTheme}>
+        <StyledEngineProvider injectFirst>
+          <main
+            className="main"
+            style={{
+              backgroundImage: `url("${selectedImageState.selectedImageURL}")`,
+            }}
           >
-            change selected image
-          </Button>
-          <ThemeToggle
-            themeState={themeState}
-            customChangeThemeState={customChangeThemeState}
-          />
-        </Card>
-        <CustomSnackbar
-          snackbarState={snackbarState}
-          changeSnackbarState={changeSnackbarState}
-        />
-      </main>
-    </ThemeProvider>
+            <Card className="inside-main">
+              <Typography align="center">
+                selected image:{" "}
+                <Typography
+                  title={`${selectedImageState.selectedImageName}.${selectedImageState?.selectedImageType}`}
+                  color="primary"
+                  variant="button"
+                >
+                  {selectedImageState.selectedImageName.length >
+                  config.step2FileNameLength.max
+                    ? `${
+                        selectedImageState.selectedImageName.slice(
+                          0,
+                          config.step2FileNameLength.visibleEnds
+                        ) +
+                        "..." +
+                        selectedImageState.selectedImageName.slice(
+                          -config.step2FileNameLength.visibleEnds
+                        )
+                      }.${selectedImageState.selectedImageType}`
+                    : `${selectedImageState.selectedImageName}.${selectedImageState.selectedImageType}`}
+                </Typography>
+              </Typography>
+
+              <div className="button-group-container">
+                <Button
+                  onClick={navigateToEncode}
+                  variant="contained"
+                  size="large"
+                  startIcon={<LockIcon />}
+                >
+                  hide text in image
+                </Button>
+                <Divider orientation="vertical" className="divider-vertical">
+                  or
+                </Divider>
+                <Divider
+                  orientation="horizontal"
+                  className="divider-horizontal"
+                >
+                  or
+                </Divider>
+                <Button
+                  variant="contained"
+                  onClick={navigateToDecode}
+                  disabled={selectedImageState.selectedImageType !== "png"}
+                  size="large"
+                  startIcon={<KeyIcon />}
+                >
+                  get hidden text from image
+                </Button>
+              </div>
+              <Button
+                onClick={uploadPhoto}
+                variant="outlined"
+                startIcon={<ImageIcon />}
+              >
+                change selected image
+              </Button>
+              <ThemeToggle
+                themeState={themeState}
+                customChangeThemeState={customChangeThemeState}
+              />
+            </Card>
+            <CustomSnackbar
+              snackbarState={snackbarState}
+              changeSnackbarState={changeSnackbarState}
+            />
+          </main>
+        </StyledEngineProvider>
+      </ThemeProvider>
+    </StrictMode>
   );
 };
 export default Step2Page;
