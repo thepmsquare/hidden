@@ -31,4 +31,8 @@ const config: GatsbyConfig = {
   ],
 };
 
+module.exports = {
+  pathPrefix: "/hidden",
+};
+
 export default config;

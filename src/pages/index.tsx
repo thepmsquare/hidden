@@ -27,6 +27,7 @@ const IndexPage: FC<PageProps> = () => {
   } else {
     localStorageTheme = null;
   }
+  console.info("direct from local storage: ", localStorageTheme);
   let defaultThemeState: "dark" | "light";
   if (localStorageTheme !== null) {
     defaultThemeState = localStorageTheme === "dark" ? "dark" : "light";
@@ -36,6 +37,7 @@ const IndexPage: FC<PageProps> = () => {
       window.localStorage.setItem("theme", config.defaultThemeState);
     }
   }
+  console.info("defaultThemeState: ", defaultThemeState);
 
   // state
   const [themeState, changeThemeState] = useState(defaultThemeState);
@@ -45,6 +47,7 @@ const IndexPage: FC<PageProps> = () => {
       message: "",
       severity: "error",
     });
+  console.info("themeState: ", themeState);
 
   // functions
 
@@ -92,7 +95,7 @@ const IndexPage: FC<PageProps> = () => {
       fontFamily: config.defaultFont,
     },
   });
-
+  console.info("currentTheme: ", JSON.stringify(currentTheme.palette.mode));
   return (
     <ThemeProvider theme={currentTheme}>
       <Card className="main" square>
