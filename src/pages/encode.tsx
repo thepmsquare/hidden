@@ -10,6 +10,7 @@ import type CustomSnackbarStateType from "../types/CustomSnackbarStateType";
 import "../stylesheets/encode.css";
 import "../stylesheets/common.css";
 import getSelectedImage from "../utils/getSelectedImage";
+import dataURLToBlob from "../utils/dataURLToBlob";
 import "@fontsource/roboto/300.css";
 import "@fontsource/roboto/400.css";
 import "@fontsource/roboto/500.css";
@@ -258,8 +259,8 @@ const EncodePage: FC<PageProps> = (props) => {
       const newDataURL = canvas.toDataURL("image/png");
       await navigate("/encode_share/", {
         state: {
-          selectedImageState,
-          newDataURL,
+          selectedImageName: selectedImageState.selectedImageName,
+          newDataBlob: dataURLToBlob(newDataURL),
           numPixelsToChange,
           percentImageChange,
         },

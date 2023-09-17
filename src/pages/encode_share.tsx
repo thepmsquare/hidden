@@ -27,12 +27,8 @@ export const Head: HeadFC = () => <title>encode share | hidden</title>;
 const EncodeSharePage: FC<PageProps> = (props) => {
   // get state from props
   interface CustomPropsType {
-    selectedImageState: {
-      selectedImage: string;
-      selectedImageName: string;
-      selectedImageType: string;
-    };
-    newDataURL: string;
+    selectedImageName: string;
+    newDataBlob: Blob;
     numPixelsToChange: number;
     percentImageChange: number;
     [key: string]: any;
@@ -40,8 +36,8 @@ const EncodeSharePage: FC<PageProps> = (props) => {
   function isCustomStateType(obj: any): obj is CustomPropsType {
     if (obj && obj !== null) {
       return (
-        "selectedImageState" in obj &&
-        "newDataURL" in obj &&
+        "selectedImageName" in obj &&
+        "newDataBlob" in obj &&
         "numPixelsToChange" in obj &&
         "percentImageChange" in obj
       );
@@ -49,11 +45,12 @@ const EncodeSharePage: FC<PageProps> = (props) => {
       return false;
     }
   }
-  let selectedImageStateProps: CustomPropsType["selectedImageState"];
-  let newDataURL: string;
+  let selectedImageName: string;
+  let newDataBlob: Blob;
+
   if (isCustomStateType(props.location.state)) {
-    selectedImageStateProps = props.location.state.selectedImageState;
-    newDataURL = props.location.state.newDataURL;
+    selectedImageName = props.location.state.selectedImageName;
+    newDataBlob = props.location.state.newDataBlob;
   } else {
     if (isBrowser) {
       navigate("/");
@@ -97,44 +94,23 @@ const EncodeSharePage: FC<PageProps> = (props) => {
 
   const downloadModifiedImage = () => {
     const downloadLink = document.createElement("a");
-    downloadLink.href = newDataURL;
+    downloadLink.href = URL.createObjectURL(newDataBlob);
     downloadLink.download = `${config.encodeModifiedFileName.replace(
       "{FILENAME}",
-      selectedImageStateProps.selectedImageName
+      selectedImageName
     )}.png`;
     downloadLink.click();
-  };
-
-  const dataURLtoBlob = (dataurl: string) => {
-    let arr = dataurl.split(",");
-    if (arr !== null) {
-      let mimeObj = arr[0].match(/:(.*?);/);
-      if (mimeObj !== null) {
-        let mime = mimeObj[1],
-          bstr = atob(arr[1]),
-          n = bstr.length,
-          u8arr = new Uint8Array(n);
-        while (n--) {
-          u8arr[n] = bstr.charCodeAt(n);
-        }
-        return new Blob([u8arr], { type: mime });
-      } else {
-        throw Error("unexpected error.");
-      }
-    } else {
-      throw Error("unexpected error.");
-    }
   };
   const shareModifiedImage = async () => {
     try {
       const pngFileName = `${config.encodeModifiedFileName.replace(
         "{FILENAME}",
-        selectedImageStateProps.selectedImageName
+        selectedImageName
       )}.png`;
       const data = {
         files: [
-          new File([dataURLtoBlob(newDataURL)], pngFileName, {
-            type: dataURLtoBlob(newDataURL).type,
+          new File([newDataBlob], pngFileName, {
+            type: newDataBlob.type,
           }),
         ],
       };
@@ -159,17 +135,17 @@ const EncodeSharePage: FC<PageProps> = (props) => {
     const link = document.createElement("a");
     const pngFileName = `${config.encodeModifiedFileName.replace(
       "{FILENAME}",
-      selectedImageStateProps.selectedImageName
+      selectedImageName
     )}.png`;
     const zipFileName = `${config.encodeModifiedFileName.replace(
       "{FILENAME}",
-      selectedImageStateProps.selectedImageName
+      selectedImageName
     )}.zip`;
     const blob = await downloadZip([
       {
         name: pngFileName,
         lastModified: new Date(),
-        input: dataURLtoBlob(newDataURL),
+        input: newDataBlob,
       },
     ]).blob();
     link.href = URL.createObjectURL(blob);
@@ -194,7 +170,7 @@ const EncodeSharePage: FC<PageProps> = (props) => {
       <main
         className="main"
         style={{
-          backgroundImage: `url("${newDataURL}")`,
+          backgroundImage: `url("${newDataBlob}")`,
         }}
       >
         <Card className="inside-main">
