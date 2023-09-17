@@ -174,7 +174,8 @@ const EncodePage: FC<PageProps> = (props) => {
       );
     }
     let numPixelsToChange = Math.ceil(msgLength / (2 * 3));
-    let percentImageChange = (numPixelsToChange / maxLength) * 100;
+    let percentImageChange =
+      (numPixelsToChange / (imageWidth * imageHeight)) * 100;
 
     let pixelIndex = 0;
     for (let i = 0; i < finalEncodedMessage.length; i += 6) {
