@@ -16,6 +16,7 @@ import "@fontsource/roboto/700.css";
 import ImageIcon from "@mui/icons-material/Image";
 import LockIcon from "@mui/icons-material/Lock";
 import KeyIcon from "@mui/icons-material/Key";
+import dataURLToBlob from "../utils/dataURLToBlob";
 
 const isBrowser = typeof window !== "undefined";
 
@@ -25,7 +26,7 @@ const Step2Page: FC<PageProps> = (props) => {
   // get state from props
   interface CustomStateType {
     selectedImageState: {
-      selectedImage: string;
+      selectedImage: Blob;
       selectedImageName: string;
       selectedImageType: string;
     };
@@ -40,7 +41,15 @@ const Step2Page: FC<PageProps> = (props) => {
   }
   let selectedImageStateProps;
   if (isCustomStateType(props.location.state)) {
-    selectedImageStateProps = props.location.state.selectedImageState;
+    selectedImageStateProps = {
+      selectedImage: URL.createObjectURL(
+        props.location.state.selectedImageState.selectedImage
+      ),
+      selectedImageName:
+        props.location.state.selectedImageState.selectedImageName,
+      selectedImageType:
+        props.location.state.selectedImageState.selectedImageType,
+    };
   } else {
     if (isBrowser) {
       navigate("/");
@@ -107,9 +116,14 @@ const Step2Page: FC<PageProps> = (props) => {
 
   const navigateToEncode = async () => {
     if (selectedImageState) {
+      // TODO
       await navigate("/encode/", {
         state: {
-          selectedImageState,
+          selectedImageState: {
+            selectedImage: dataURLToBlob(selectedImageState.selectedImage),
+            selectedImageName: selectedImageState.selectedImageName,
+            selectedImageType: selectedImageState.selectedImageType,
+          },
         },
       });
     } else {
@@ -123,9 +137,14 @@ const Step2Page: FC<PageProps> = (props) => {
 
   const navigateToDecode = async () => {
     if (selectedImageState) {
+      // TODO
       await navigate("/decode/", {
         state: {
-          selectedImageState,
+          selectedImageState: {
+            selectedImage: dataURLToBlob(selectedImageState.selectedImage),
+            selectedImageName: selectedImageState.selectedImageName,
+            selectedImageType: selectedImageState.selectedImageType,
+          },
         },
       });
     } else {

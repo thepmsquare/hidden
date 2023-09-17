@@ -17,6 +17,7 @@ import "@fontsource/roboto/700.css";
 import ImageIcon from "@mui/icons-material/Image";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import PasswordInput from "../components/PasswordInput";
+import dataURLToBlob from "../utils/dataURLToBlob";
 
 const isBrowser = typeof window !== "undefined";
 
@@ -26,7 +27,7 @@ const DecodePage: FC<PageProps> = (props) => {
   // get state from props
   interface CustomStateType {
     selectedImageState: {
-      selectedImage: string;
+      selectedImage: Blob;
       selectedImageName: string;
       selectedImageType: string;
     };
@@ -42,7 +43,15 @@ const DecodePage: FC<PageProps> = (props) => {
   let selectedImageStateProps;
 
   if (isCustomStateType(props.location.state)) {
-    selectedImageStateProps = props.location.state.selectedImageState;
+    selectedImageStateProps = {
+      selectedImage: URL.createObjectURL(
+        props.location.state.selectedImageState.selectedImage
+      ),
+      selectedImageName:
+        props.location.state.selectedImageState.selectedImageName,
+      selectedImageType:
+        props.location.state.selectedImageState.selectedImageType,
+    };
   } else {
     if (isBrowser) {
       navigate("/");
@@ -245,7 +254,12 @@ const DecodePage: FC<PageProps> = (props) => {
       }
       await navigate("/decode_share/", {
         state: {
-          selectedImageState,
+          // TODO
+          selectedImageState: {
+            selectedImage: dataURLToBlob(selectedImageState.selectedImage),
+            selectedImageName: selectedImageState.selectedImageName,
+            selectedImageType: selectedImageState.selectedImageType,
+          },
           finalMessage,
         },
       });
@@ -258,9 +272,14 @@ const DecodePage: FC<PageProps> = (props) => {
     }
   };
   const navigateToStep2 = async () => {
+    // TODO
     await navigate("/step2/", {
       state: {
-        selectedImageState,
+        selectedImageState: {
+          selectedImage: dataURLToBlob(selectedImageState.selectedImage),
+          selectedImageName: selectedImageState.selectedImageName,
+          selectedImageType: selectedImageState.selectedImageType,
+        },
       },
     });
   };

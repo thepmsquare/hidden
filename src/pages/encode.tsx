@@ -27,7 +27,7 @@ const EncodePage: FC<PageProps> = (props) => {
   // get state from props
   interface CustomStateType {
     selectedImageState: {
-      selectedImage: string;
+      selectedImage: Blob;
       selectedImageName: string;
       selectedImageType: string;
     };
@@ -42,7 +42,15 @@ const EncodePage: FC<PageProps> = (props) => {
   }
   let selectedImageStateProps;
   if (isCustomStateType(props.location.state)) {
-    selectedImageStateProps = props.location.state.selectedImageState;
+    selectedImageStateProps = {
+      selectedImage: URL.createObjectURL(
+        props.location.state.selectedImageState.selectedImage
+      ),
+      selectedImageName:
+        props.location.state.selectedImageState.selectedImageName,
+      selectedImageType:
+        props.location.state.selectedImageState.selectedImageType,
+    };
   } else {
     if (isBrowser) {
       navigate("/");
@@ -275,9 +283,14 @@ const EncodePage: FC<PageProps> = (props) => {
   };
 
   const navigateToStep2 = async () => {
+    // TODO
     await navigate("/step2/", {
       state: {
-        selectedImageState,
+        selectedImageState: {
+          selectedImage: dataURLToBlob(selectedImageState.selectedImage),
+          selectedImageName: selectedImageState.selectedImageName,
+          selectedImageType: selectedImageState.selectedImageType,
+        },
       },
     });
   };

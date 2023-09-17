@@ -7,6 +7,7 @@ import config from "../../config";
 import ThemeToggle from "../components/ThemeToggle";
 import CustomSnackbar from "../components/CustomSnackbar";
 import type CustomSnackbarStateType from "../types/CustomSnackbarStateType";
+import dataURLToBlob from "../utils/dataURLToBlob";
 import "../stylesheets/index.css";
 import "../stylesheets/common.css";
 import getSelectedImage from "../utils/getSelectedImage";
@@ -70,10 +71,11 @@ const IndexPage: FC<PageProps> = () => {
           selectedImageName: string,
           selectedImageType: string
         ) => {
+          // TODO
           await navigate("/step2/", {
             state: {
               selectedImageState: {
-                selectedImage,
+                selectedImage: dataURLToBlob(selectedImage),
                 selectedImageName,
                 selectedImageType,
               },

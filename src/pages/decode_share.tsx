@@ -19,7 +19,7 @@ const DecodeSharePage: FC<PageProps> = (props) => {
   // get state from props
   interface CustomPropsType {
     selectedImageState: {
-      selectedImage: string;
+      selectedImage: Blob;
       selectedImageName: string;
       selectedImageType: string;
     };
@@ -102,7 +102,9 @@ const DecodeSharePage: FC<PageProps> = (props) => {
       <main
         className="main"
         style={{
-          backgroundImage: `url("${selectedImageStateProps.selectedImage}")`,
+          backgroundImage: `url("${URL.createObjectURL(
+            selectedImageStateProps.selectedImage
+          )}")`,
         }}
       >
         <Card className="inside-main">
