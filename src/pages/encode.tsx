@@ -184,7 +184,13 @@ const EncodePage: FC<PageProps> = (props) => {
     let oldPixels = oldImageData.data;
     let finalEncodedMessage = encodedMessage + config.messageAppendedAtEnd;
     let msgLength = finalEncodedMessage.length;
-    let maxLength = imageWidth * imageHeight * 3 * 2;
+    let maxLength =
+      (oldPixels.filter(
+        (_, index) => oldPixels[index + (3 - (index % 4))] === 255
+      ).length /
+        4) *
+      3 *
+      2;
     if (msgLength > maxLength) {
       throw new Error(
         "Image with more pixels needed for encoding current message."
@@ -196,6 +202,13 @@ const EncodePage: FC<PageProps> = (props) => {
 
     let pixelIndex = 0;
     for (let i = 0; i < finalEncodedMessage.length; i += 6) {
+      while (oldPixels[pixelIndex + 3] !== 255) {
+        newPixels[pixelIndex] = oldPixels[pixelIndex];
+        newPixels[pixelIndex + 1] = oldPixels[pixelIndex + 1];
+        newPixels[pixelIndex + 2] = oldPixels[pixelIndex + 2];
+        newPixels[pixelIndex + 3] = oldPixels[pixelIndex + 3];
+        pixelIndex += 4;
+      }
       const rm = finalEncodedMessage.slice(i, i + 2);
       const gm = finalEncodedMessage.slice(i + 2, i + 4);
       const bm = finalEncodedMessage.slice(i + 4, i + 6);

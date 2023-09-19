@@ -135,7 +135,20 @@ const DecodePage: FC<PageProps> = (props) => {
           .slice(6);
       if (pixelData[1] === 2) {
         pixelData[1] = 0;
-        pixelData[0] = pixelData[0] + 1;
+
+        let nextPixelNumber = pixelData[0] + 1;
+        while (true) {
+          if (imageData.data[nextPixelNumber * 4 + 3] === 255) break;
+          else {
+            nextPixelNumber = nextPixelNumber + 1;
+            if (nextPixelNumber >= imageData.width * imageData.height) {
+              throw new Error(
+                "Input image doesn't appear to have any encoded message."
+              );
+            }
+          }
+        }
+        pixelData[0] = nextPixelNumber;
       } else {
         pixelData[1] = pixelData[1] + 1;
       }
@@ -145,7 +158,20 @@ const DecodePage: FC<PageProps> = (props) => {
 
   const getBinaryData = (imageData: ImageData) => {
     const binaryData = [];
-    let pixelData: [number, number] = [0, 0];
+    let firstPixelNumber = 0;
+    while (true) {
+      if (imageData.data[firstPixelNumber * 4 + 3] === 255) break;
+      else {
+        firstPixelNumber = firstPixelNumber + 1;
+        if (firstPixelNumber >= imageData.width * imageData.height) {
+          throw new Error(
+            "Input image doesn't appear to have any encoded message."
+          );
+        }
+      }
+    }
+
+    let pixelData: [number, number] = [firstPixelNumber, 0];
     while (true) {
       let currentChr = get2nBits(1, imageData, pixelData); // Use the get2nBits function defined earlier.
 
