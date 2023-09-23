@@ -63,10 +63,10 @@ const NotFoundPage: FC<PageProps> = (props) => {
         <StyledEngineProvider injectFirst>
           <Card className="main" square>
             <div className="inside-main">
-              <Typography align="center" color="error">
+              <Typography align="center" color="error" variant="h1">
                 404
               </Typography>{" "}
-              <Typography align="center" color="error">
+              <Typography align="center" color="error" variant="subtitle1">
                 {props.location.pathname.length > 10
                   ? props.location.pathname.slice(0, 10) + "..."
                   : props.location.pathname}{" "}
