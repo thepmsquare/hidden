@@ -1,5 +1,5 @@
 import { Dispatch } from "react";
-import type CustomSnackbarStateType from "../types/CustomSnackbarStateType";
+import type { CustomSnackbarStateType } from "squarecomponents";
 
 const customTypeCheckForFileList = (x: any): x is FileList => x.length === 1;
 

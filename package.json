@@ -1,6 +1,6 @@
 {
   "name": "hidden",
-  "version": "1.0.0",
+  "version": "2.1.0",
   "private": true,
   "description": "hidden",
   "author": "Parth Mangtani",
@@ -29,7 +29,8 @@
     "gatsby-plugin-offline": "^6.12.0",
     "gatsby-plugin-sitemap": "^6.11.0",
     "react": "^18.2.0",
-    "react-dom": "^18.2.0"
+    "react-dom": "^18.2.0",
+    "squarecomponents": "^1.0.0"
   },
   "devDependencies": {
     "@types/crypto-js": "^4.1.2",

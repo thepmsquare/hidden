@@ -3,7 +3,7 @@ import { type HeadFC, type PageProps, navigate } from "gatsby";
 import { Button, Typography, Card, StyledEngineProvider } from "@mui/material";
 import { ThemeProvider, createTheme } from "@mui/material/styles";
 import config from "../../config";
-import ThemeToggle from "../components/ThemeToggle";
+import { ThemeToggle } from "squarecomponents";
 import "../stylesheets/404.css";
 import "../stylesheets/common.css";
 import "@fontsource/roboto/300.css";

@@ -10,9 +10,8 @@ import {
 import { ThemeProvider, createTheme } from "@mui/material/styles";
 import CryptoJS from "crypto-js";
 import config from "../../config";
-import ThemeToggle from "../components/ThemeToggle";
-import CustomSnackbar from "../components/CustomSnackbar";
-import type CustomSnackbarStateType from "../types/CustomSnackbarStateType";
+import { ThemeToggle, PasswordInput, CustomSnackbar } from "squarecomponents";
+import type { CustomSnackbarStateType } from "squarecomponents";
 import "../stylesheets/encode.css";
 import "../stylesheets/common.css";
 import getSelectedImage from "../utils/getSelectedImage";
@@ -23,7 +22,6 @@ import "@fontsource/roboto/500.css";
 import "@fontsource/roboto/700.css";
 import ImageIcon from "@mui/icons-material/Image";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
-import PasswordInput from "../components/PasswordInput";
 
 const isBrowser = typeof window !== "undefined";
 

@@ -9,9 +9,8 @@ import {
 } from "@mui/material";
 import { ThemeProvider, createTheme } from "@mui/material/styles";
 import config from "../../config";
-import ThemeToggle from "../components/ThemeToggle";
-import CustomSnackbar from "../components/CustomSnackbar";
-import type CustomSnackbarStateType from "../types/CustomSnackbarStateType";
+import { ThemeToggle, CustomSnackbar } from "squarecomponents";
+import type { CustomSnackbarStateType } from "squarecomponents";
 import "../stylesheets/step2.css";
 import "../stylesheets/common.css";
 import getSelectedImage from "../utils/getSelectedImage";

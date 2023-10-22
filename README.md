@@ -36,6 +36,10 @@ progressive web app to provide encryption and decryption using steganography usi
 
 ## changelog
 
+### v2.1
+
+- use squareComponents for custom common components
+
 ### v2
 
 - migrate to mui.
